@@ -184,10 +184,16 @@ class TransaksiController extends Controller
     public function show($id)
     {
         $transaksi = Transaksi::with(['detail.produk', 'pelanggan', 'kasir'])
-            ->where('jenis', 'penjualan')
-            ->findOrFail($id);
-        return view('transaksi.show', compact('transaksi'));
+        ->where('jenis', 'penjualan')
+        ->findOrFail($id);
+
+    // Pindahkan pengecekan JSON/AJAX ke ATAS sebelum mengembalikan View HTML
+    if (request()->wantsJson() || request()->ajax() || request('type') === 'json') {
+        return response()->json($transaksi);
     }
+
+    return view('transaksi.show', compact('transaksi'));
+}
 
     public function destroy($id)
     {
@@ -342,6 +348,16 @@ class TransaksiController extends Controller
         ->where('jenis', 'pembelian')
         ->findOrFail($id);
     return view('pembelian.show', compact('pembelian'));
+}
+
+// ==================== CETAK STRUK ====================
+public function printStruk($id)
+{
+    $transaksi = Transaksi::with(['detail.produk', 'pelanggan', 'kasir'])
+        ->where('jenis', 'penjualan')
+        ->findOrFail($id);
+
+    return view('transaksi.print', compact('transaksi'));
 }
 
     public function destroyPembelian($id)

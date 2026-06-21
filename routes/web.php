@@ -27,6 +27,7 @@ Route::middleware(['auth', 'role:pemilik,kasir'])->group(function () {
 // --- 3. ROUTE KHUSUS KASIR ---
 Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    Route::get('/transaksi/{id}/print', [TransaksiController::class, 'printStruk'])->name('transaksi.print');
 });
 
 // --- 4. ROUTE KHUSUS PEMILIK ---

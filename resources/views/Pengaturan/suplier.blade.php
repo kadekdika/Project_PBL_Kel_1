@@ -66,6 +66,7 @@
             <h3 class="font-bold text-gray-800 mb-1">Daftar Suplier</h3>
             <p class="text-xs text-gray-400 mb-5">Kelola semua informasi suplier</p>
 
+            <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 text-gray-500 text-xs">
@@ -119,6 +120,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </x-app-layout>

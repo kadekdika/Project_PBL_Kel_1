@@ -1,15 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\{
     ProfileController, ProdukController, KategoriController,
     PelangganController, TransaksiController, SuplierController,
     LaporanController, DashboardController,
     PengaturanController, DiskonController, LandingPageController,
-    LandingSlideController
+    AkuntansiController, LaporanKeuanganController, RiwayatController
 };
 
-Route::get('/', function () { return view('welcome'); });
+// Internal: tanpa halaman welcome/landing — root langsung arahkan ke login,
+// kalau sudah login lempar ke dashboard.
+Route::get('/', function () {
+    return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
+});
 
 // --- 1. ROUTE LOGIN UMUM ---
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -20,12 +25,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // --- 2. ROUTE AKSES BERSAMA (Pemilik & Kasir) ---
-Route::middleware(['auth', 'role:pemilik,kasir'])->group(function () {
+Route::middleware(['auth', 'role:pemilik,kasir,pemilik2'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 
-// --- 3. ROUTE KHUSUS KASIR ---
-Route::middleware(['auth', 'role:kasir'])->group(function () {
+// --- 3. ROUTE PENJUALAN (Kasir + Pemilik) ---
+// Semua role boleh input transaksi supaya akun pemilik (default) tetap bisa
+// menjalankan POS. Controller transaksi sudah membatasi hanya transaksi milik
+// user yang login (id_user), jadi kasir tidak bisa lihat/ubah transaksi kasir lain.
+Route::middleware(['auth', 'role:kasir,pemilik,pemilik2'])->group(function () {
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
     Route::get('/transaksi/{id}/print', [TransaksiController::class, 'printStruk'])->name('transaksi.print');
 });
@@ -34,7 +42,8 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
 Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('produk', ProdukController::class);
-    Route::resource('kategori', KategoriController::class);
+    // create/show mati agar /kategori/tambah dll 404 bersih, tidak nyelot ke method show yang tidak ada
+    Route::resource('kategori', KategoriController::class)->except(['create', 'show']);
     Route::resource('diskon', DiskonController::class);
 
     // Pembelian (lewat TransaksiController)
@@ -44,16 +53,35 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
     Route::get('/pembelian/{id}', [TransaksiController::class, 'showPembelian'])->name('pembelian.show');
     Route::delete('/pembelian/{id}', [TransaksiController::class, 'destroyPembelian'])->name('pembelian.destroy');
 
-    // Landing Page
+    // Kustomisasi visual (kini hanya login, halaman depan sudah dihapus)
     Route::prefix('pengaturan')->group(function () {
         Route::get('/landing', [LandingPageController::class, 'index'])->name('landing.index');
         Route::post('/landing/update', [LandingPageController::class, 'update'])->name('landing.update');
-        Route::post('/landing/slide', [LandingPageController::class, 'storeSlide'])->name('landing.slide.store');
-        Route::delete('/landing/slide/{id}', [LandingPageController::class, 'destroySlide'])->name('landing.slide.destroy');
     });
 
     Route::get('/laporan/export', [LaporanController::class, 'exportExcel'])->name('laporan.export');
     Route::post('/produk/{id}/transfer-stok', [ProdukController::class, 'transferStok'])->name('produk.transferStok');
+
+    // Riwayat aksi / audit trail (transaksi + login)
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+    Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('riwayat.destroy');
+
+    // Akuntansi (COA, Jurnal, Buku Besar, Beban, Laporan Keuangan)
+    Route::prefix('akuntansi')->name('akuntansi.')->group(function () {
+        Route::get('/coa', [AkuntansiController::class, 'coa'])->name('coa');
+        Route::post('/coa', [AkuntansiController::class, 'coaStore'])->name('coa.store');
+        Route::delete('/coa/{id}', [AkuntansiController::class, 'coaDestroy'])->name('coa.destroy');
+        Route::get('/buku-besar', [AkuntansiController::class, 'bukuBesar'])->name('buku-besar');
+        Route::get('/jurnal', [AkuntansiController::class, 'jurnal'])->name('jurnal');
+        Route::post('/jurnal', [AkuntansiController::class, 'jurnalStore'])->name('jurnal.store');
+        Route::delete('/jurnal/{id}', [AkuntansiController::class, 'jurnalDestroy'])->name('jurnal.destroy');
+        Route::get('/beban', [AkuntansiController::class, 'beban'])->name('beban');
+        Route::post('/beban', [AkuntansiController::class, 'bebanStore'])->name('beban.store');
+        Route::delete('/beban/{id}', [AkuntansiController::class, 'bebanDestroy'])->name('beban.destroy');
+        Route::get('/laba-rugi', [LaporanKeuanganController::class, 'labaRugi'])->name('laba-rugi');
+        Route::get('/neraca', [LaporanKeuanganController::class, 'neraca'])->name('neraca');
+        Route::get('/arus-kas', [LaporanKeuanganController::class, 'arusKas'])->name('arus-kas');
+    });
 
     // Pengaturan Akun & User
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         // Jalankan Seeder Landing Page biar gak error property on null
         $this->call([
             LandingPageSeeder::class,
+            AkunSeeder::class,
         ]);
 
         // Seed User Admin

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Produk extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'produk';
     protected $primaryKey = 'id_produk';
 
@@ -14,6 +17,7 @@ class Produk extends Model
         'nama_produk',
         'id_kategori',
         'harga_satuan',
+        'harga_beli',
         'harga_grosir',
         'minimal_grosir',
         'stok_gudang',

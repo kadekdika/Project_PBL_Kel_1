@@ -15,7 +15,7 @@
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Detail Transaksi #{{ $transaksi->id_transaksi }}</h2>
                     <p class="text-xs text-gray-400 mt-0.5">
-                        {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y H:i') }}
+                        {{ ($transaksi->created_at ?? \Carbon\Carbon::parse($transaksi->tanggal))->format('d/m/Y H:i') }} WIB
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -42,6 +42,7 @@
         <div class="flex gap-4">
             <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="font-bold text-gray-800 mb-4">Produk yang Dibeli</h3>
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 text-gray-500 text-xs">
@@ -80,6 +81,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="w-72 flex flex-col gap-4">

@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-sm border border-green-100 p-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                     <h3 class="font-bold text-gray-800 mb-3">Ringkasan</h3>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between font-bold text-gray-800 text-lg">

@@ -15,11 +15,6 @@ public function index()
     return view('kategori.index', compact('kategoris'));
 }
 
-    public function create()
-    {
-        return view('kategori.create');
-    }
-
     public function store(Request $request)
     {
         $request->validate([

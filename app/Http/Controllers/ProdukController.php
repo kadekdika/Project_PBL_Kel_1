@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Kategori;
+use App\Models\DetailTransaksi;
 use Illuminate\Http\Request;
 
 class ProdukController extends Controller
@@ -62,6 +63,7 @@ class ProdukController extends Controller
             'nama_produk'   => 'required|string|max:150|unique:produk,nama_produk',
             'id_kategori'   => 'required|exists:kategori,id_kategori',
             'harga_satuan'  => 'required|integer|min:0',
+            'harga_beli'    => 'nullable|integer|min:0',
             'harga_grosir'  => 'nullable|integer|min:0|lt:harga_satuan',
             'minimal_grosir'=> 'nullable|integer|min:0',
             'stok_gudang'   => 'required|integer|min:0',
@@ -82,6 +84,7 @@ class ProdukController extends Controller
             'nama_produk'   => $request->nama_produk,
             'id_kategori'   => $request->id_kategori,
             'harga_satuan'  => $request->harga_satuan,
+            'harga_beli'    => $request->harga_beli ?: 0,
             'harga_grosir'  => $request->harga_grosir,
             'minimal_grosir'=> $request->minimal_grosir,
             'stok_gudang'   => $request->stok_gudang,
@@ -111,6 +114,7 @@ class ProdukController extends Controller
             'nama_produk'   => 'required|string|max:150|unique:produk,nama_produk,' . $id . ',id_produk',
             'id_kategori'   => 'required|exists:kategori,id_kategori',
             'harga_satuan'  => 'required|integer|min:0',
+            'harga_beli'    => 'nullable|integer|min:0',
             'harga_grosir'  => 'nullable|integer|min:0|lt:harga_satuan',
             'minimal_grosir'=> 'nullable|integer|min:0',
             'stok_gudang'   => 'required|integer|min:0',
@@ -125,6 +129,7 @@ class ProdukController extends Controller
             'nama_produk'   => $request->nama_produk,
             'id_kategori'   => $request->id_kategori,
             'harga_satuan'  => $request->harga_satuan,
+            'harga_beli'    => $request->harga_beli ?: 0,
             'harga_grosir'  => $request->harga_grosir,
             'minimal_grosir'=> $request->minimal_grosir,
             'stok_gudang'   => $request->stok_gudang,
@@ -138,7 +143,18 @@ class ProdukController extends Controller
 
     public function destroy($id)
     {
-        Produk::destroy($id);
+        $produk = Produk::findOrFail($id);
+
+        // Cegah penghapusan yang menghapus riwayat/laporan keuangan (FK cascade)
+        if (DetailTransaksi::where('id_produk', $id)->exists()) {
+            return back()->with('error', "Produk \"{$produk->nama_produk}\" tidak bisa dihapus karena sudah pernah dipakai di transaksi.");
+        }
+
+        if ($produk->diskon()->exists()) {
+            return back()->with('error', "Produk \"{$produk->nama_produk}\" tidak bisa dihapus karena terpasang pada diskon. Hapus diskonnya dulu.");
+        }
+
+        $produk->delete();
         return back()->with('success', 'Produk berhasil dihapus');
     }
 

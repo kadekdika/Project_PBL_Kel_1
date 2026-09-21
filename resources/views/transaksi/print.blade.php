@@ -18,16 +18,15 @@
 <body onload="window.print(); window.onafterprint = function() { window.close(); }">
 
     <div class="text-center">
-        <h3 style="margin: 0; font-size: 14px;">TOKO KITA</h3>
-        <p class="meta-info" style="margin: 2px 0;">PBL Project Kelompok</p>
-        <p class="meta-info">Sistem POS Laravel</p>
+        <h3 style="margin: 0; font-size: 14px;">SARANA AGRO MAKMUR</h3>
+        <p class="meta-info" style="margin: 2px 0;">Sistem POS Toko</p>
     </div>
 
     <div class="line"></div>
 
     <div class="meta-info">
-        <div>No. Nota : #{{ $transaksi->id_transaksi }}</div>
-        <div>Tanggal  : {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y H:i') }}</div>
+        <div>No. Nota : TR-{{ $transaksi->id_transaksi }}</div>
+        <div>Tanggal  : {{ ($transaksi->created_at ?? $transaksi->tanggal) instanceof \Carbon\CarbonInterface ? $transaksi->created_at->format('d/m/Y H:i') : \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y H:i') }}</div>
         <div>Kasir    : {{ $transaksi->kasir->name ?? 'Kasir' }}</div>
         <div>Pelanggan: {{ $transaksi->pelanggan->nama_pelanggan ?? 'Umum' }}</div>
     </div>
@@ -39,8 +38,8 @@
             @foreach($transaksi->detail as $detail)
             <tr>
                 <td colspan="2">
-                    <span class="item-name">{{ $detail->produk->nama_produk }}</span>
-                    <span class="meta-info">{{ $detail->jumlah }} x Rp {{ number_format($detail->harga, 0, ',', '.') }} ({{ ucfirst($detail->tipe) }})</span>
+                    <span class="item-name">{{ $detail->produk->nama_produk ?? 'Produk Terhapus' }}</span>
+                    <span class="meta-info">{{ $detail->jumlah }} x Rp {{ number_format($detail->harga, 0, ',', '.') }} ({{ ucfirst($detail->tipe ?? 'eceran') }})</span>
                 </td>
                 <td class="text-right" style="vertical-align: bottom;">
                     Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
@@ -89,7 +88,6 @@
         @if($transaksi->catatan)
             <p style="margin: 0 0 5px 0;">Catatan: "{{ $transaksi->catatan }}"</p>
         @endif
-        Maju Bersama PBL Kelompok!<br>
         *** TERIMA KASIH ***
     </div>
 

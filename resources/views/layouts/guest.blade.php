@@ -6,6 +6,13 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        @php
+            $landing = \App\Models\LandingPage::first();
+            $logoPath = ($landing && $landing->login_logo_path)
+                ? asset('storage/' . $landing->login_logo_path)
+                : asset('images/logotoko.png');
+        @endphp
+        <link rel="icon" type="image/png" href="{{ $logoPath }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

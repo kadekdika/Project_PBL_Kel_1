@@ -82,6 +82,7 @@
             </div>
         </form>
 
+        <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-gray-100 text-gray-500 text-xs">
@@ -153,6 +154,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     {{-- MODAL 1: PILIH PRODUK --}}

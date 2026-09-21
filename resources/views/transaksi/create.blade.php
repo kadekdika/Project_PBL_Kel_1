@@ -48,7 +48,7 @@
             </div>
 
             {{-- Tabel Produk --}}
-            <div class="overflow-y-auto flex-1">
+            <div class="overflow-y-auto overflow-x-auto flex-1">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 text-gray-500 text-xs">
@@ -69,6 +69,8 @@
                                 ->where('is_aktif', true)
                                 ->where('mulai_tgl', '<=', $today)
                                 ->where('selesai_tgl', '>=', $today)
+                                ->orderByDesc('besar_diskon')
+                                ->orderBy('id_diskon')
                                 ->get();
 
                             $diskonAktif = $semuaDiskon->whereNull('id_pelanggan')->first();

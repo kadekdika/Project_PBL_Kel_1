@@ -44,8 +44,8 @@
                     <tr class="hover:bg-gray-50 transition group">
                         <td class="py-4 text-gray-400 font-mono">#{{ $t->id_transaksi }}</td>
                         <td class="py-4 text-gray-600">
-                            {{ \Carbon\Carbon::parse($t->tanggal)->format('d/m/y') }}
-                            <span class="text-[10px] block text-gray-400">{{ \Carbon\Carbon::parse($t->tanggal)->format('H:i') }} WIB</span>
+                            {{ \Carbon\Carbon::parse($t->created_at ?? $t->tanggal)->format('d/m/y') }}
+                            <span class="text-[10px] block text-gray-400">{{ \Carbon\Carbon::parse($t->created_at ?? $t->tanggal)->format('H:i') }} WIB</span>
                         </td>
                         <td class="py-4 font-medium text-gray-700">{{ $t->pelanggan->nama_pelanggan ?? 'Umum' }}</td>
                         <td class="py-4 text-gray-600 text-xs">{{ $t->user->name ?? $t->kasir->name ?? '-' }}</td>
@@ -62,13 +62,13 @@
                         </td>
                         <td class="py-4">
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('transaksi.show', $t->id_transaksi) }}?type=json" 
-                                   class="btn-lihat-struk w-9 h-9 bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-xl flex items-center justify-center transition-all duration-200"
-                                   title="Lihat Struk">
+                                <button type="button" data-id="{{ $t->id_transaksi }}"
+                                        class="btn-lihat-struk w-9 h-9 bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-xl flex items-center justify-center transition-all duration-200"
+                                        title="Lihat Struk">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                </a>
+                                </button>
 
                                 <a href="{{ route('transaksi.show', $t->id_transaksi) }}?type=html"
                                    class="w-9 h-9 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl flex items-center justify-center transition-all duration-200"
@@ -127,22 +127,42 @@
                 <button type="button" onclick="tutupModalStruk()" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-50 text-sm font-medium">
                     Tutup
                 </button>
-                <button type="button" onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium flex items-center gap-1">
-                    Cetak
+                <button type="button" onclick="cetakStruk()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium flex items-center gap-1">
+                    Cetak Struk
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-    document.querySelectorAll('.btn-lihat-struk').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault(); 
-            
-            const urlTujuan = this.getAttribute('href');
+    const urlShowBase  = "{{ route('transaksi.index') }}";
+    const urlPrintBase = "{{ route('transaksi.print', '__ID__') }}";
+    let idStrukAktif = null;
+
+    // Escape HTML sebelum disisipkan via innerHTML (cegah stored XSS)
+    function esc(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function formatWaktu(data) {
+        const tgl = new Date(data.created_at || data.tanggal || null);
+        if (isNaN(tgl.getTime())) return '-';
+        return tgl.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'})
+            + ' ' + tgl.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'}) + ' WIB';
+    }
+
+    document.querySelectorAll('.btn-lihat-struk').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const idStruk = this.getAttribute('data-id');
+            if (!idStruk) return;
+
+            idStrukAktif = idStruk;
             const modal = document.getElementById('modalStruk');
             const konten = document.getElementById('kontenStruk');
-            
+
             if (!modal || !konten) {
                 alert('Error: Wadah modal tidak ditemukan!');
                 return;
@@ -150,8 +170,8 @@
 
             modal.classList.remove('hidden');
             konten.innerHTML = '<div class="text-center py-8"><span class="text-gray-500">Memuat data transaksi...</span></div>';
-            
-            fetch(urlTujuan, {
+
+            fetch(`${urlShowBase.replace(/\/+$/, '')}/${idStruk}?type=json`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
@@ -165,20 +185,20 @@
                 return response.json();
             })
             .then(data => {
-                // Konversi tanggal aman
-                const tglObj = data.tanggal ? new Date(data.tanggal) : new Date();
-                const tglFormatted = tglObj.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: '2-digit'}) + ' ' + tglObj.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ' WIB';
+                const tglFormatted = formatWaktu(data);
 
                 // Deteksi nama kasir dari relasi user maupun kasir
-                const namaKasir = data.user?.name || data.kasir?.name || '-';
+                const namaKasir = esc(data.user?.name || data.kasir?.name || '-');
+                const namaPelanggan = esc(data.pelanggan?.nama_pelanggan || 'Umum');
+                const metode = esc(data.metode_pembayaran || '-');
 
                 let detailItems = '';
                 if(data.detail && data.detail.length > 0) {
                     data.detail.forEach(item => {
-                        const namaProduk = item.produk ? item.produk.nama_produk : 'Produk Terhapus';
+                        const namaProduk = esc(item.produk ? item.produk.nama_produk : 'Produk Terhapus');
                         const hargaItem = item.harga ? Number(item.harga) : 0;
                         const subtotalItem = item.subtotal ? Number(item.subtotal) : (hargaItem * Number(item.jumlah || 0));
-                        
+
                         detailItems += `
                             <div class="flex justify-between text-xs py-1 border-b border-dashed">
                                 <div>
@@ -196,12 +216,12 @@
                 konten.innerHTML = `
                     <div class="text-center border-b pb-3 mb-3 border-dashed">
                         <h4 class="font-bold text-base text-gray-800">Sarana Agro Makmur</h4>
-                        <p class="text-[11px] text-gray-400">Nota: TR-${data.id_transaksi || ''} | ${tglFormatted}</p>
+                        <p class="text-[11px] text-gray-400">Nota: TR-${esc(data.id_transaksi || '')} | ${tglFormatted}</p>
                     </div>
                     <div class="text-xs space-y-1 bg-gray-50 p-3 rounded-xl mb-3">
                         <div class="flex justify-between"><span>Kasir:</span><span class="font-medium">${namaKasir}</span></div>
-                        <div class="flex justify-between"><span>Pelanggan:</span><span class="font-medium">${data.pelanggan?.nama_pelanggan || 'Umum'}</span></div>
-                        <div class="flex justify-between"><span>Metode:</span><span class="font-bold uppercase text-emerald-600">${data.metode_pembayaran || '-'}</span></div>
+                        <div class="flex justify-between"><span>Pelanggan:</span><span class="font-medium">${namaPelanggan}</span></div>
+                        <div class="flex justify-between"><span>Metode:</span><span class="font-bold uppercase text-emerald-600">${metode}</span></div>
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-gray-500 mb-1">Daftar Item:</p>
@@ -214,14 +234,29 @@
                         <div class="flex justify-between pt-1"><span>Bayar:</span><span>Rp ${Number(data.bayar || 0).toLocaleString('id-ID')}</span></div>
                         <div class="flex justify-between font-medium text-emerald-600"><span>Kembalian:</span><span>Rp ${Number(data.kembalian || 0).toLocaleString('id-ID')}</span></div>
                     </div>
+                    <div class="text-center mt-3 pt-2 border-t border-dashed">
+                        <button type="button" onclick="cetakStruk()"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium">
+                            Cetak Struk
+                        </button>
+                    </div>
                 `;
             })
             .catch(error => {
-                konten.innerHTML = `<div class="text-center py-4 text-red-500 font-medium">Gagal mengambil data transaksi. <br><span class="text-xs text-gray-400 font-normal">Pastikan relasi data/JSON controller sesuai.</span></div>`;
+                konten.innerHTML = `<div class="text-center py-4 text-red-500 font-medium">Gagal mengambil data transaksi.</div>`;
                 console.error(error);
             });
         });
     });
+
+    function cetakStruk() {
+        if (!idStrukAktif) {
+            alert('Data struk belum dimuat.');
+            return;
+        }
+        // Cetak lewat halaman struk termal 58mm, bukan window.print() di halaman daftar
+        window.open(urlPrintBase.replace('__ID__', idStrukAktif), '_blank');
+    }
 
     function tutupModalStruk() {
         document.getElementById('modalStruk').classList.add('hidden');

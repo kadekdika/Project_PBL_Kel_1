@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('bayar')->default(0);
             $table->integer('kembalian')->default(0);
             $table->string('metode_pembayaran')->nullable();
-            $table->string('struk')->nullable(); //-- struk
             $table->text('keterangan')->nullable();                 // ← kolom baru
             $table->text('catatan')->nullable();
             $table->timestamps();           

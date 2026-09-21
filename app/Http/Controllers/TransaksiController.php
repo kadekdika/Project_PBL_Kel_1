@@ -10,6 +10,8 @@ use App\Models\Kategori;
 use App\Models\Diskon;
 use App\Models\Suplier;
 use App\Models\LaporanPembelian;
+use App\Services\JurnalService;
+use App\Services\RiwayatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -21,8 +23,8 @@ class TransaksiController extends Controller
 
     public function index()
     {
-        $transaksi = Transaksi::with(['detail.produk', 'pelanggan'])
-            ->where('jenis', 'penjualan')
+        $transaksi = Transaksi::with(['pelanggan', 'user'])
+            ->penjualan()
             ->where('id_user', Auth::id())
             ->latest('id_transaksi')
             ->get();
@@ -97,6 +99,9 @@ class TransaksiController extends Controller
                     $q->whereNull('id_pelanggan')
                       ->orWhere('id_pelanggan', $request->id_pelanggan ?: null);
                 })
+                // FIX: pilih diskon terbesar yang berlaku (klien & server pakai urutan sama)
+                ->orderByDesc('besar_diskon')
+                ->orderBy('id_diskon')
                 ->first();
 
             if ($diskonAktif) {
@@ -138,7 +143,7 @@ class TransaksiController extends Controller
         try {
             $transaksi = Transaksi::create([
                 'jenis'             => 'penjualan',
-                'tanggal'           => now(),
+                'tanggal'           => now()->toDateString(), // kolom DATE; jam asli dari created_at
                 'id_user'           => Auth::id(),
                 'id_pelanggan'      => $request->id_pelanggan ?: null,
                 'subtotal'          => $subtotalKeseluruhan,
@@ -158,7 +163,7 @@ class TransaksiController extends Controller
                     'tipe_stok'      => $item['tipe'] === 'grosir' ? 'gudang' : 'toko',
                     'jumlah'         => $item['jumlah'],
                     'harga'          => $item['harga'],
-                    'harga_beli'     => 0,
+                    'harga_beli'     => $item['produk_obj']->harga_beli ?? 0,
                     'nominal_diskon' => $item['nominal_diskon'], // per unit
                     'subtotal'       => $item['subtotal'],
                 ]);
@@ -172,6 +177,9 @@ class TransaksiController extends Controller
                 $p->save();
             }
 
+            JurnalService::buatJurnalPenjualan($transaksi);
+            RiwayatService::catatTransaksi('penjualan_buat', $transaksi);
+
             DB::commit();
             return redirect()->route('transaksi.show', $transaksi->id_transaksi)
                 ->with('success', 'Transaksi Berhasil!');
@@ -184,22 +192,26 @@ class TransaksiController extends Controller
     public function show($id)
     {
         $transaksi = Transaksi::with(['detail.produk', 'pelanggan', 'kasir'])
-        ->where('jenis', 'penjualan')
-        ->findOrFail($id);
+            ->penjualan()
+            ->where('id_user', Auth::id())
+            ->findOrFail($id);
 
-    // Pindahkan pengecekan JSON/AJAX ke ATAS sebelum mengembalikan View HTML
-    if (request()->wantsJson() || request()->ajax() || request('type') === 'json') {
-        return response()->json($transaksi);
+        if (request()->wantsJson() || request()->ajax() || request('type') === 'json') {
+            return response()->json($transaksi);
+        }
+
+        return view('transaksi.show', compact('transaksi'));
     }
-
-    return view('transaksi.show', compact('transaksi'));
-}
 
     public function destroy($id)
     {
         DB::beginTransaction();
         try {
-            $transaksi = Transaksi::with('detail')->findOrFail($id);
+            // Kasir hanya boleh menghapus transaksi penjualan miliknya sendiri
+            $transaksi = Transaksi::with('detail')
+                ->penjualan()
+                ->where('id_user', Auth::id())
+                ->findOrFail($id);
             foreach ($transaksi->detail as $detail) {
                 $produk = Produk::find($detail->id_produk);
                 if ($produk) {
@@ -211,6 +223,8 @@ class TransaksiController extends Controller
                     $produk->save();
                 }
             }
+            JurnalService::voidJurnal('penjualan', $transaksi->id_transaksi);
+            RiwayatService::catatTransaksi('penjualan_hapus', $transaksi);
             $transaksi->delete();
             DB::commit();
             return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus.');
@@ -223,13 +237,13 @@ class TransaksiController extends Controller
     // ==================== PEMBELIAN ====================
 
     public function indexPembelian()
-{
-    $pembelian = Transaksi::with(['detail.produk', 'suplier', 'user'])  // <-- TAMBAH 'user'
-        ->where('jenis', 'pembelian')
-        ->latest('id_transaksi')
-        ->get();
-    return view('pembelian.index', compact('pembelian'));
-}
+    {
+        $pembelian = Transaksi::with(['detail.produk', 'suplier', 'user'])
+            ->where('jenis', 'pembelian')
+            ->latest('id_transaksi')
+            ->get();
+        return view('pembelian.index', compact('pembelian'));
+    }
 
     public function createPembelian()
     {
@@ -240,9 +254,6 @@ class TransaksiController extends Controller
 
     public function storePembelian(Request $request)
 {
-    // Debug log
-    \Log::info('StorePembelian dipanggil', $request->all());
-    
     // Validasi
     $validator = \Validator::make($request->all(), [
         'tanggal'      => 'required|date',
@@ -303,6 +314,7 @@ class TransaksiController extends Controller
             // Update stok produk
             $produk = Produk::findOrFail($id_produk);
             $produk->stok_gudang += $jumlah;
+            $produk->harga_beli = $harga_beli;
             $produk->save();
         }
 
@@ -313,6 +325,9 @@ class TransaksiController extends Controller
             'total'        => $transaksi->total,
             'id_user'      => Auth::id(),
         ]);
+
+        JurnalService::buatJurnalPembelian($transaksi);
+        RiwayatService::catatTransaksi('pembelian_buat', $transaksi);
 
         DB::commit();
 
@@ -351,14 +366,15 @@ class TransaksiController extends Controller
 }
 
 // ==================== CETAK STRUK ====================
-public function printStruk($id)
-{
-    $transaksi = Transaksi::with(['detail.produk', 'pelanggan', 'kasir'])
-        ->where('jenis', 'penjualan')
-        ->findOrFail($id);
+    public function printStruk($id)
+    {
+        $transaksi = Transaksi::with(['detail.produk', 'pelanggan', 'kasir'])
+            ->penjualan()
+            ->where('id_user', Auth::id())
+            ->findOrFail($id);
 
-    return view('transaksi.print', compact('transaksi'));
-}
+        return view('transaksi.print', compact('transaksi'));
+    }
 
     public function destroyPembelian($id)
     {
@@ -372,6 +388,8 @@ public function printStruk($id)
                     $produk->save();
                 }
             }
+            JurnalService::voidJurnal('pembelian', $pembelian->id_transaksi);
+            RiwayatService::catatTransaksi('pembelian_hapus', $pembelian);
             $pembelian->delete();
             DB::commit();
             return redirect()->route('pembelian.index')->with('success', 'Pembelian berhasil dihapus.');

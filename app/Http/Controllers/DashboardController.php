@@ -15,6 +15,23 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
+        $filter = $request->filter ?? 'bulan_ini';
+        $now = Carbon::now();
+
+        if ($filter == 'bulan_ini') {
+            $start = $now->copy()->startOfMonth();
+            $end = $now->copy()->endOfMonth();
+        } elseif ($filter == '3_bulan') {
+            $start = $now->copy()->subMonths(2)->startOfMonth();
+            $end = $now->copy()->endOfMonth();
+        } elseif ($filter == '1_tahun') {
+            $start = $now->copy()->subYear()->startOfMonth();
+            $end = $now->copy()->endOfMonth();
+        } else {
+            $start = $now->copy()->startOfMonth();
+            $end = $now->copy()->endOfMonth();
+        }
+
         // Filter bulan, default bulan ini
         $bulan = $request->bulan ?? Carbon::now()->month;
         $tahun = $request->tahun ?? Carbon::now()->year;
@@ -23,38 +40,38 @@ class DashboardController extends Controller
 
         // 4 kartu statistik (tetap hari ini)
         $totalTransaksiHariIni = Transaksi::where('jenis', 'penjualan')
-            ->whereDate('tanggal', $today)
+            ->whereBetween('tanggal', [$start, $end])
             ->count();
 
         $totalPenjualanHariIni = Transaksi::where('jenis', 'penjualan')
-            ->whereDate('tanggal', $today)
+            ->whereBetween('tanggal', [$start, $end])
             ->sum('total');
 
-        $produkTerjualHariIni = DetailTransaksi::whereHas('transaksi', function($q) use ($today) {
+        $produkTerjualHariIni = DetailTransaksi::whereHas('transaksi', function($q) use ($start, $end) {
             $q->where('jenis', 'penjualan')
-              ->whereDate('tanggal', $today);
+              ->whereBetween('tanggal', [$start, $end]);
         })->sum('jumlah');
 
         // Hitung stok menipis
-        $stokMenipis = Produk::where('stok_toko', '<=', 10)
-            ->orWhere('stok_gudang', '<=', 5)
-            ->count();
+        $stokMenipis = Produk::where(function ($q) {
+            $q->where('stok_toko', '<=', 10)
+              ->orWhere('stok_gudang', '<=', 5);
+        })->count();
 
         $jumlahStokMenipis = $stokMenipis;
 
         // Transaksi terakhir
         $transaksiTerakhir = Transaksi::with(['detail.produk', 'pelanggan'])
             ->where('jenis', 'penjualan')
-            ->whereDate('tanggal', $today)
+            ->whereBetween('tanggal', [$start, $end])
             ->latest('id_transaksi')
             ->take(5)
             ->get();
 
         // Produk terlaris
-        $produkTerlaris = DetailTransaksi::whereHas('transaksi', function($q) use ($bulan, $tahun) {
+        $produkTerlaris = DetailTransaksi::whereHas('transaksi', function($q) use ($start, $end) {
         $q->where('jenis', 'penjualan')
-          ->whereMonth('tanggal', $bulan)
-          ->whereYear('tanggal', $tahun);
+          ->whereBetween('tanggal', [$start, $end]);
     })
         ->join('produk', 'detail_transaksi.id_produk', '=', 'produk.id_produk')
         ->select('produk.nama_produk', DB::raw('SUM(detail_transaksi.jumlah) as total_terjual'))
@@ -64,10 +81,11 @@ class DashboardController extends Controller
         ->get();
 
         // Grafik per hari sesuai bulan yang dipilih
-        $grafik = collect(range(0, $selectedDate->daysInMonth - 1))->map(function($i) use ($selectedDate) {
-            $date = $selectedDate->copy()->addDays($i);
+        $grafikDays = $start->diffInDays($end) + 1;
+        $grafik = collect(range(0, $grafikDays - 1))->map(function($i) use ($start) {
+            $date = $start->copy()->addDays($i);
             return [
-                'tanggal' => $date->format('d'),
+                'tanggal' => $date->format('d M'),
                 'total'   => Transaksi::where('jenis', 'penjualan')
                                 ->whereDate('tanggal', $date)
                                 ->sum('total'),
@@ -85,6 +103,7 @@ class DashboardController extends Controller
         })->reverse()->values();
 
         return view('dashboard', compact(
+            'filter', 'start', 'end',
             'totalTransaksiHariIni',
             'totalPenjualanHariIni',
             'produkTerjualHariIni',

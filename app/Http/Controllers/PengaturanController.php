@@ -98,7 +98,7 @@ class PengaturanController extends Controller
 
     public function kasirDestroy($id)
     {
-        $kasir = User::findOrFail($id);
+        $kasir = User::where('role', 'kasir')->findOrFail($id);
         $kasir->delete();
 
         return back()->with('success', 'Akun kasir berhasil dihapus!');

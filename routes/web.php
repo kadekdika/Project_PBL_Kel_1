@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // --- 2. ROUTE AKSES BERSAMA (Pemilik & Kasir) ---
 Route::middleware(['auth', 'role:pemilik,kasir,pemilik2'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanController::class, 'exportExcel'])->name('laporan.export');
 });
 
 // --- 3. ROUTE PENJUALAN (Kasir + Pemilik) ---
@@ -40,6 +41,17 @@ Route::middleware(['auth', 'role:kasir,pemilik,pemilik2'])->group(function () {
 
 // --- 4. ROUTE KHUSUS PEMILIK ---
 Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
+    // Sampah routes (kategori, produk, diskon)
+    Route::get('/kategori/sampah', [KategoriController::class, 'sampah'])->name('kategori.sampah');
+    Route::post('/kategori/sampah/{id}/pulihkan', [KategoriController::class, 'pulihkan'])->name('kategori.pulihkan');
+    Route::delete('/kategori/sampah/{id}/hapus', [KategoriController::class, 'hapusPermanen'])->name('kategori.hapusPermanen');
+    Route::get('/produk/sampah', [ProdukController::class, 'sampah'])->name('produk.sampah');
+    Route::post('/produk/sampah/{id}/pulihkan', [ProdukController::class, 'pulihkan'])->name('produk.pulihkan');
+    Route::delete('/produk/sampah/{id}/hapus', [ProdukController::class, 'hapusPermanen'])->name('produk.hapusPermanen');
+    Route::get('/diskon/sampah', [DiskonController::class, 'sampah'])->name('diskon.sampah');
+    Route::post('/diskon/sampah/{id}/pulihkan', [DiskonController::class, 'pulihkan'])->name('diskon.pulihkan');
+    Route::delete('/diskon/sampah/{id}/hapus', [DiskonController::class, 'hapusPermanen'])->name('diskon.hapusPermanen');
+
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('produk', ProdukController::class);
     // create/show mati agar /kategori/tambah dll 404 bersih, tidak nyelot ke method show yang tidak ada
@@ -59,7 +71,6 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
         Route::post('/landing/update', [LandingPageController::class, 'update'])->name('landing.update');
     });
 
-    Route::get('/laporan/export', [LaporanController::class, 'exportExcel'])->name('laporan.export');
     Route::post('/produk/{id}/transfer-stok', [ProdukController::class, 'transferStok'])->name('produk.transferStok');
 
     // Riwayat aksi / audit trail (transaksi + login)
@@ -104,3 +115,4 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+

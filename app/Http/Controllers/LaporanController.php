@@ -78,46 +78,79 @@ class LaporanController extends Controller
 
     public function exportExcel(Request $request)
     {
-        if (auth()->user()->role !== 'pemilik') {
-            abort(403, 'Anda tidak memiliki akses untuk mengekspor data.');
-        }
-
         $dari   = $request->dari   ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $sampai = $request->sampai ?? Carbon::now()->endOfMonth()->format('Y-m-d');
         $tab    = $request->tab    ?? 'penjualan';
 
+        // Rincian lengkap per transaksi: semua item produk, bukan hanya yang pertama
         if ($tab === 'pembelian') {
-            $data     = Transaksi::with(['suplier', 'detail.produk'])
+            $data = Transaksi::with(['suplier', 'detail.produk'])
                 ->where('jenis', 'pembelian')
                 ->whereBetween('tanggal', [$dari, $sampai])
                 ->latest('id_transaksi')
                 ->get();
+
             $filename = 'laporan_pembelian_' . $dari . '_sd_' . $sampai . '.csv';
-            $headers_csv = ['No', 'Tanggal', 'Supplier', 'Produk', 'Total', 'Keterangan'];
-            $rows = $data->map(fn($t, $i) => [
-                $i + 1,
-                Carbon::parse($t->tanggal)->format('d/m/Y'),
-                $t->suplier->nama_suplier ?? '-',
-                $t->detail->first()->produk->nama_produk ?? '-',
-                $t->total,
-                $t->keterangan ?? '-',
-            ]);
+            $headers_csv = ['No', 'Tanggal', 'Supplier', 'Produk', 'Jumlah', 'Harga Beli', 'Subtotal', 'Total', 'Keterangan'];
+            $rows = [];
+            $no = 0;
+            foreach ($data as $t) {
+                $sup = $t->suplier->nama_suplier ?? '-';
+                $ket = $t->keterangan ?? '-';
+                if ($t->detail->isEmpty()) {
+                    $no++;
+                    $rows[] = [$no, Carbon::parse($t->tanggal)->format('d/m/Y'), $sup, '-', '-', '-', '-', $t->total, $ket];
+                } else {
+                    foreach ($t->detail as $d) {
+                        $no++;
+                        $rows[] = [
+                            $no,
+                            Carbon::parse($t->tanggal)->format('d/m/Y'),
+                            $sup,
+                            $d->produk->nama_produk ?? '-',
+                            $d->jumlah,
+                            $d->harga_beli,
+                            $d->subtotal,
+                            $t->total,
+                            $ket,
+                        ];
+                    }
+                }
+            }
         } else {
-            $data     = Transaksi::with(['pelanggan', 'detail.produk'])
+            $data = Transaksi::with(['pelanggan', 'detail.produk'])
                 ->where('jenis', 'penjualan')
                 ->whereBetween('tanggal', [$dari, $sampai])
                 ->latest('id_transaksi')
                 ->get();
+
             $filename = 'laporan_penjualan_' . $dari . '_sd_' . $sampai . '.csv';
-            $headers_csv = ['No', 'Tanggal', 'Pelanggan', 'Produk', 'Total', 'Metode Pembayaran'];
-            $rows = $data->map(fn($t, $i) => [
-                $i + 1,
-                Carbon::parse($t->tanggal)->format('d/m/Y'),
-                $t->pelanggan->nama_pelanggan ?? '-',
-                $t->detail->first()->produk->nama_produk ?? '-',
-                $t->total,
-                $t->metode_pembayaran ?? '-',
-            ]);
+            $headers_csv = ['No', 'Tanggal', 'Pelanggan', 'Produk', 'Jumlah', 'Harga Jual', 'Subtotal', 'Total', 'Metode Pembayaran'];
+            $rows = [];
+            $no = 0;
+            foreach ($data as $t) {
+                $pel = $t->pelanggan->nama_pelanggan ?? 'Umum';
+                $met = $t->metode_pembayaran ?? '-';
+                if ($t->detail->isEmpty()) {
+                    $no++;
+                    $rows[] = [$no, Carbon::parse($t->tanggal)->format('d/m/Y'), $pel, '-', '-', '-', '-', $t->total, $met];
+                } else {
+                    foreach ($t->detail as $d) {
+                        $no++;
+                        $rows[] = [
+                            $no,
+                            Carbon::parse($t->tanggal)->format('d/m/Y'),
+                            $pel,
+                            $d->produk->nama_produk ?? '-',
+                            $d->jumlah,
+                            $d->harga,
+                            $d->subtotal,
+                            $t->total,
+                            $met,
+                        ];
+                    }
+                }
+            }
         }
 
         $headers = [
@@ -127,6 +160,8 @@ class LaporanController extends Controller
 
         $callback = function() use ($rows, $headers_csv) {
             $file = fopen('php://output', 'w');
+            // UTF-8 BOM agar Excel mengenali karakter Indonesia
+            fputs($file, "\xEF\xBB\xBF");
             fputcsv($file, $headers_csv);
             foreach ($rows as $row) {
                 fputcsv($file, $row);

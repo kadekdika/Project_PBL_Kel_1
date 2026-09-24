@@ -141,6 +141,26 @@ class ProdukController extends Controller
         return redirect('/produk')->with('success', 'Produk berhasil diupdate');
     }
 
+    public function sampah()
+    {
+        $sampah = Produk::onlyTrashed()->with('kategori')->latest('deleted_at')->get();
+        return view('produk.sampah', compact('sampah'));
+    }
+
+    public function pulihkan($id)
+    {
+        $p = \App\Models\Produk::withTrashed()->findOrFail($id);
+        $p->restore();
+        return redirect()->route('produk.sampah')->with('success','Produk dipulihkan');
+    }
+
+    public function hapusPermanen($id)
+    {
+        $p = \App\Models\Produk::withTrashed()->findOrFail($id);
+        $p->forceDelete();
+        return redirect()->route('produk.sampah')->with('success','Produk dihapus permanen');
+    }
+
     public function destroy($id)
     {
         $produk = Produk::findOrFail($id);
@@ -155,7 +175,7 @@ class ProdukController extends Controller
         }
 
         $produk->delete();
-        return back()->with('success', 'Produk berhasil dihapus');
+        return redirect()->route('produk.index')->with('success','Produk dihapus (lihat Sampah)');
     }
 
     public function transferStok(Request $request, $id)

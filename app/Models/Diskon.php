@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Diskon extends Model
 {
+    use SoftDeletes, LogsActivity;
     protected $table = 'diskon';
     protected $primaryKey = 'id_diskon';
 

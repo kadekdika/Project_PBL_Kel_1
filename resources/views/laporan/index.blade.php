@@ -20,7 +20,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                @if(auth()->user()->role == 'pemilik')
+                @if(auth()->user()->role == 'pemilik' || auth()->user()->role == 'kasir')
                 <a href="{{ route('laporan.export', ['dari' => $dari, 'sampai' => $sampai, 'tab' => $tab]) }}"
                    class="flex items-center gap-2 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

@@ -240,6 +240,7 @@ class TransaksiController extends Controller
     {
         $pembelian = Transaksi::with(['detail.produk', 'suplier', 'user'])
             ->where('jenis', 'pembelian')
+            ->where('id_user', Auth::id())
             ->latest('id_transaksi')
             ->get();
         return view('pembelian.index', compact('pembelian'));
@@ -361,6 +362,7 @@ class TransaksiController extends Controller
 {
     $pembelian = Transaksi::with(['detail.produk', 'suplier', 'user'])
         ->where('jenis', 'pembelian')
+        ->where('id_user', Auth::id())
         ->findOrFail($id);
     return view('pembelian.show', compact('pembelian'));
 }
@@ -380,11 +382,11 @@ class TransaksiController extends Controller
     {
         DB::beginTransaction();
         try {
-            $pembelian = Transaksi::with('detail')->findOrFail($id);
+            $pembelian = Transaksi::with('detail')->where('id_user', Auth::id())->findOrFail($id);
             foreach ($pembelian->detail as $detail) {
                 $produk = Produk::find($detail->id_produk);
                 if ($produk) {
-                    $produk->stok_gudang -= $detail->jumlah;
+                    $produk->stok_gudang += $detail->jumlah;
                     $produk->save();
                 }
             }

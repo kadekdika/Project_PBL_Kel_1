@@ -19,8 +19,15 @@ class RiwayatController extends Controller
         if ($sampai) $q->whereDate('created_at', '<=', $sampai);
 
         // Filter jenis kejadian → cocokkan prefix aksi
-        $kejadian = $request->get('kejadian');
-        if (in_array($kejadian, ['penjualan', 'pembelian', 'login'])) {
+        $kejadian = $request->get('kejadian') ?: '';
+        if ($kejadian === 'data_master') {
+            $q->where(function ($sub) {
+                $sub->where('aksi', 'not like', 'penjualan%')
+                    ->where('aksi', 'not like', 'pembelian%')
+                    ->where('aksi', 'not like', 'login%')
+                    ->where('aksi', 'not like', 'logout%');
+            });
+        } elseif ($kejadian && in_array($kejadian, ['penjualan', 'pembelian', 'login', 'kategori', 'produk', 'diskon'])) {
             $q->where('aksi', 'like', $kejadian . '%');
         }
 

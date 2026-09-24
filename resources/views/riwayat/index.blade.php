@@ -15,6 +15,15 @@
             'pembelian_hapus'  => ['Pembelian Dihapus', 'bg-red-100 text-red-700'],
             'login'            => ['Login', 'bg-gray-100 text-gray-600'],
             'logout'           => ['Logout', 'bg-gray-100 text-gray-600'],
+            'kategori_buat'    => ['Kategori Dibuat', 'bg-amber-100 text-amber-700'],
+            'kategori_ubah'    => ['Kategori Diubah', 'bg-yellow-100 text-yellow-700'],
+            'kategori_hapus'   => ['Kategori Dihapus', 'bg-red-100 text-red-700'],
+            'kategori_pulihkan'=> ['Kategori Dipulihkan', 'bg-teal-100 text-teal-700'],
+            'kategori_hapus_permanen'=> ['Kategori Dihapus Permanen', 'bg-red-200 text-red-800'],
+            'produk_buat'      => ['Produk Dibuat', 'bg-green-100 text-green-700'],
+            'produk_hapus'     => ['Produk Dihapus', 'bg-red-100 text-red-700'],
+            'diskon_buat'      => ['Diskon Dibuat', 'bg-purple-100 text-purple-700'],
+            'diskon_hapus'     => ['Diskon Dihapus', 'bg-red-100 text-red-700'],
         ];
         $badgeRole = [
             'pemilik'  => 'bg-green-100 text-green-700',
@@ -39,6 +48,13 @@
 
     <!-- Filter -->
     <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <div class="flex gap-2 mb-3 overflow-x-auto">
+            <a href="{{ route('riwayat.index') }}" class="px-3 py-1 text-xs font-semibold rounded-lg {{ !$kejadian ? 'bg-[#2d6a4f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">Semua</a>
+            <a href="{{ route('riwayat.index', ['kejadian'=>'penjualan']) }}" class="px-3 py-1 text-xs font-semibold rounded-lg {{ $kejadian == 'penjualan' ? 'bg-[#2d6a4f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">Penjualan</a>
+            <a href="{{ route('riwayat.index', ['kejadian'=>'pembelian']) }}" class="px-3 py-1 text-xs font-semibold rounded-lg {{ $kejadian == 'pembelian' ? 'bg-[#2d6a4f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">Pembelian</a>
+            <a href="{{ route('riwayat.index', ['kejadian'=>'login']) }}" class="px-3 py-1 text-xs font-semibold rounded-lg {{ $kejadian == 'login' ? 'bg-[#2d6a4f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">Login</a>
+            <a href="{{ route('riwayat.index', ['kejadian'=>'data_master']) }}" class="px-3 py-1 text-xs font-semibold rounded-lg {{ $kejadian == 'data_master' ? 'bg-[#2d6a4f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">Data Master</a>
+        </div>
         <form method="GET" action="{{ route('riwayat.index') }}" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Dari</label>

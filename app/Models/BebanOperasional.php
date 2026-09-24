@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BebanOperasional extends Model
 {
+    use SoftDeletes, LogsActivity;
     protected $table = 'beban_operasional';
     protected $primaryKey = 'id_beban';
     protected $fillable = [

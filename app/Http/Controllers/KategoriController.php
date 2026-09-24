@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class KategoriController extends Controller
 {
-public function index()
+    public function index()
 {
     // Cuma ambil yang statusnya active
     $kategoris = Kategori::where('status', 'active')->get(); 
@@ -31,11 +31,11 @@ public function index()
             if ($cekData->status === 'inactive') {
                 $cekData->update(['status' => 'active']);
                 return redirect()->route('kategori.index')->with('success', 'Kategori sudah ada dan telah diaktifkan kembali!');
-            } 
+            }
             return back()->withErrors(['nama_kategori' => 'Nama kategori sudah ada dan masih aktif.']);
         }
 
-        Kategori::create([
+        $kategori = Kategori::create([
             'nama_kategori' => $request->nama_kategori,
             'status'        => 'active'
         ]);
@@ -71,8 +71,27 @@ public function index()
     public function destroy($id)
     {
         $kategori = Kategori::findOrFail($id);
-        $kategori->update(['status' => 'inactive']);
+        $kategori->delete();
+        return redirect()->route('kategori.index')->with('success','Kategori dihapus (lihat Sampah)');
+    }
 
-        return redirect()->route('kategori.index')->with('success', 'Kategori dinonaktifkan.');
+    public function sampah()
+    {
+        $sampah = Kategori::onlyTrashed()->latest('deleted_at')->get();
+        return view('kategori.sampah', compact('sampah'));
+    }
+
+    public function pulihkan($id)
+    {
+        $k = Kategori::withTrashed()->findOrFail($id);
+        $k->restore();
+        return redirect()->route('kategori.sampah')->with('success','Kategori dipulihkan');
+    }
+
+    public function hapusPermanen($id)
+    {
+        $k = Kategori::withTrashed()->findOrFail($id);
+        $k->forceDelete();
+        return redirect()->route('kategori.sampah')->with('success','Kategori dihapus permanen');
     }
 }

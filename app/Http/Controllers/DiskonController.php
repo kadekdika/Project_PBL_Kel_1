@@ -104,6 +104,26 @@ class DiskonController extends Controller
         return redirect()->route('diskon.index')->with('success', 'Diskon berhasil diupdate.');
     }
 
+    public function sampah()
+    {
+        $sampah = Diskon::onlyTrashed()->with('produk')->latest('deleted_at')->get();
+        return view('diskon.sampah', compact('sampah'));
+    }
+
+    public function pulihkan($id)
+    {
+        $d = \App\Models\Diskon::withTrashed()->findOrFail($id);
+        $d->restore();
+        return redirect()->route('diskon.sampah')->with('success','Diskon dipulihkan');
+    }
+
+    public function hapusPermanen($id)
+    {
+        $d = \App\Models\Diskon::withTrashed()->findOrFail($id);
+        $d->forceDelete();
+        return redirect()->route('diskon.sampah')->with('success','Diskon dihapus permanen');
+    }
+
     public function destroy($id)
     {
         Diskon::destroy($id);

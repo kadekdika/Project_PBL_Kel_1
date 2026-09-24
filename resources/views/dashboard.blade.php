@@ -11,7 +11,7 @@
 
         <div class="bg-white rounded-lg p-5 border border-gray-200">
             <div class="flex items-center justify-between mb-3">
-                <p class="text-xs text-gray-500 font-medium">Total Transaksi Hari Ini</p>
+                <p class="text-xs text-gray-500 font-medium">Total Transaksi Periode</p>
                 <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                     <svg class="w-4 h-4 text-[#2d6a4f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -24,7 +24,7 @@
 
         <div class="bg-white rounded-lg p-5 border border-gray-200">
             <div class="flex items-center justify-between mb-3">
-                <p class="text-xs text-gray-500 font-medium">Total Penjualan Hari Ini</p>
+                <p class="text-xs text-gray-500 font-medium">Total Penjualan Periode</p>
                 <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                     <span class="text-[#2d6a4f] font-bold text-xs">Rp</span>
                 </div>
@@ -35,7 +35,7 @@
 
         <div class="bg-white rounded-lg p-5 border border-gray-200">
             <div class="flex items-center justify-between mb-3">
-                <p class="text-xs text-gray-500 font-medium">Produk Terjual Hari Ini</p>
+                <p class="text-xs text-gray-500 font-medium">Produk Terjual Periode</p>
                 <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                     <svg class="w-4 h-4 text-[#2d6a4f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
@@ -74,7 +74,16 @@
         <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-5">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-gray-700">Grafik Penjualan</h3>
-                <form method="GET" action="{{ route('dashboard') }}">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="text-xs font-semibold text-gray-500">Periode:</span>
+                    <a href="?filter=bulan_ini" class="px-3 py-1 text-xs rounded-lg border {{ $filter == 'bulan_ini' ? 'bg-[#2d6a4f] text-white border-[#2d6a4f]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#2d6a4f]' }} transition">Bulan ini</a>
+                    <a href="?filter=3_bulan" class="px-3 py-1 text-xs rounded-lg border {{ $filter == '3_bulan' ? 'bg-[#2d6a4f] text-white border-[#2d6a4f]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#2d6a4f]' }} transition">3 bulan</a>
+                    <a href="?filter=1_tahun" class="px-3 py-1 text-xs rounded-lg border {{ $filter == '1_tahun' ? 'bg-[#2d6a4f] text-white border-[#2d6a4f]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#2d6a4f]' }} transition">1 tahun</a>
+                </div>
+                <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
+                    <div class="flex gap-2">
+    
+                    </div>
                     <select name="bulan" id="bulanSelect"
                             class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#2d6a4f]">
                         @foreach($opsibulan as $ob)
@@ -93,7 +102,7 @@
 
         {{-- Produk Terlaris --}}
         <div class="bg-white rounded-lg border border-gray-200 p-5">
-            <h3 class="font-bold text-gray-700 mb-4">Produk Terlaris Bulan Ini</h3>
+            <h3 class="font-bold text-gray-700 mb-4">Produk Terlaris Periode</h3>
             <div class="space-y-3">
                 @forelse($produkTerlaris as $index => $p)
                 <div class="flex items-center gap-3">

@@ -63,8 +63,15 @@
 
         {{-- Tabel Daftar Suplier --}}
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h3 class="font-bold text-gray-800 mb-1">Daftar Suplier</h3>
-            <p class="text-xs text-gray-400 mb-5">Kelola semua informasi suplier</p>
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-1">Daftar Suplier</h3>
+                    <p class="text-xs text-gray-400 mb-0">Kelola semua informasi suplier</p>
+                </div>
+                <a href="{{ route('pengaturan.suplier.sampah') }}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 shadow-md transition">
+                    Sampah
+                </a>
+            </div>
 
             <div class="overflow-x-auto">
             <table class="w-full text-sm">

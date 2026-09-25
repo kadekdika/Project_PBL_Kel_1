@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 
 class PelangganController extends Controller
@@ -54,12 +55,43 @@ class PelangganController extends Controller
         return redirect('/pelanggan')->with('success', 'Data pelanggan berhasil diupdate');
     }
 
-    // 🔹 HAPUS DATA
+    // 🔹 HAPUS DATA (soft delete)
     public function destroy($id)
     {
         $pelanggan = Pelanggan::findOrFail($id);
         $pelanggan->delete();
 
-        return redirect('/pelanggan')->with('success', 'Data pelanggan berhasil dihapus');
+        return redirect('/pelanggan')->with('success', 'Data pelanggan berhasil dihapus (masuk ke Sampah)');
+    }
+
+    // 🔹 SAMPAH (hanya yang sudah dihapus)
+    public function sampah()
+    {
+        $sampah = Pelanggan::onlyTrashed()->latest('deleted_at')->get();
+        return view('pelanggan.sampah', compact('sampah'));
+    }
+
+    // 🔹 PULIHKAN (restore)
+    public function pulihkan($id)
+    {
+        $p = Pelanggan::withTrashed()->findOrFail($id);
+        $p->restore();
+
+        return redirect()->route('pelanggan.sampah')->with('success', 'Pelanggan berhasil dipulihkan');
+    }
+
+    // 🔹 HAPUS PERMANEN
+    public function hapusPermanen($id)
+    {
+        $p = Pelanggan::withTrashed()->findOrFail($id);
+
+        // Cegah hapus permanen kalau masih dipakai di transaksi aktif
+        if (Transaksi::where('id_pelanggan', $id)->exists()) {
+            return back()->with('error', "Pelanggan \"{$p->nama_pelanggan}\" tidak bisa dihapus permanen karena masih dipakai di transaksi.");
+        }
+
+        $p->forceDelete();
+
+        return redirect()->route('pelanggan.sampah')->with('success', 'Pelanggan berhasil dihapus permanen');
     }
 }

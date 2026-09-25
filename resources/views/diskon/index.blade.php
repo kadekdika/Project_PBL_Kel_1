@@ -9,9 +9,14 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center justify-between mb-5">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">Data Diskon</h2>
-                <p class="text-xs text-gray-400">Kelola promo dan diskon produk</p>
+            <div class="flex items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Data Diskon</h2>
+                    <p class="text-xs text-gray-400">Kelola promo dan diskon produk</p>
+                </div>
+                <a href="{{ route('diskon.sampah') }}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 shadow-md transition">
+                    Sampah
+                </a>
             </div>
             <a href="{{ route('diskon.create') }}">
                 <button class="bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-sm font-semibold px-4 py-2 rounded-xl transition">

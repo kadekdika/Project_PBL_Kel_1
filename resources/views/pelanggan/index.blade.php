@@ -7,6 +7,10 @@
                 <a href="{{ route('pelanggan.create') }}" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
                     + Tambah
                 </a>
+                <a href="{{ route('pelanggan.sampah') }}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-500 text-white text-xs font-bold rounded-lg hover:bg-gray-600 shadow-md transition">
+                    Sampah
+                </a>
+            </div>
             </div>
 
             @if(session('success'))

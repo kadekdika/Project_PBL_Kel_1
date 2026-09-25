@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Suplier;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 
 class SuplierController extends Controller
@@ -73,6 +74,37 @@ class SuplierController extends Controller
         $suplier = Suplier::findOrFail($id);
         $suplier->delete();
 
-        return redirect()->route('pengaturan.suplier')->with('success', 'Data berhasil dihapus');
+        return redirect()->route('pengaturan.suplier')->with('success', 'Data suplier berhasil dihapus (masuk ke Sampah)');
+    }
+
+    // 🔹 SAMPAH
+    public function sampah()
+    {
+        $sampah = Suplier::onlyTrashed()->latest('deleted_at')->get();
+        return view('pengaturan.suplier-sampah', compact('sampah'));
+    }
+
+    // 🔹 PULIHKAN
+    public function pulihkan($id)
+    {
+        $s = Suplier::withTrashed()->findOrFail($id);
+        $s->restore();
+
+        return redirect()->route('pengaturan.suplier.sampah')->with('success', 'Suplier berhasil dipulihkan');
+    }
+
+    // 🔹 HAPUS PERMANEN
+    public function hapusPermanen($id)
+    {
+        $s = Suplier::withTrashed()->findOrFail($id);
+
+        // Cegah hapus permanen kalau masih dipakai di transaksi aktif
+        if (Transaksi::where('id_suplier', $id)->exists()) {
+            return back()->with('error', "Suplier \"{$s->nama_suplier}\" tidak bisa dihapus permanen karena masih dipakai di transaksi.");
+        }
+
+        $s->forceDelete();
+
+        return redirect()->route('pengaturan.suplier.sampah')->with('success', 'Suplier berhasil dihapus permanen');
     }
 }

@@ -41,7 +41,17 @@ class TransaksiController extends Controller
         }])->get();
         $kategori = Kategori::all();
         $pelanggan = Pelanggan::all();
-        return view('transaksi.create', compact('produk', 'kategori', 'pelanggan'));
+
+        // Ambil diskon aktif spesifik pelanggan (id_pelanggan != null)
+        $diskonPelanggan = Diskon::where('is_aktif', true)
+            ->where('mulai_tgl', '<=', $today)
+            ->where('selesai_tgl', '>=', $today)
+            ->whereNotNull('id_pelanggan')
+            ->with('produk')
+            ->get()
+            ->groupBy('id_pelanggan');
+
+        return view('transaksi.create', compact('produk', 'kategori', 'pelanggan', 'diskonPelanggan'));
     }
 
     public function store(Request $request)

@@ -65,6 +65,17 @@
                         @foreach($produk as $p)
                         @php
                             $today = now()->toDateString();
+                            // Generic discounts (no customer) for product table display
+                            $diskonUmum = $p->diskon()
+                                ->where('is_aktif', true)
+                                ->whereNull('id_pelanggan')
+                                ->where('mulai_tgl', '<=', $today)
+                                ->where('selesai_tgl', '>=', $today)
+                                ->orderByDesc('besar_diskon')
+                                ->orderBy('id_diskon')
+                                ->first();
+
+                            // All active discounts (including customer-specific) for JS modal calculations
                             $semuaDiskon = $p->diskon()
                                 ->where('is_aktif', true)
                                 ->where('mulai_tgl', '<=', $today)
@@ -72,8 +83,6 @@
                                 ->orderByDesc('besar_diskon')
                                 ->orderBy('id_diskon')
                                 ->get();
-
-                            $diskonAktif = $semuaDiskon->whereNull('id_pelanggan')->first();
 
                             $semuaDiskonJson = $semuaDiskon->map(fn($d) => [
                                 'besar'        => $d->besar_diskon,
@@ -93,11 +102,11 @@
                             data-minimal-grosir="{{ $p->minimal_grosir ?? 0 }}"
                             data-stok-toko="{{ $p->stok_toko }}"
                             data-stok-gudang="{{ $p->stok_gudang }}"
-                            data-diskon="{{ $diskonAktif ? $diskonAktif->besar_diskon : 0 }}"
-                            data-minimal-diskon="{{ $diskonAktif ? $diskonAktif->minimal_beli : 0 }}"
-                            data-minimal-diskon-grosir="{{ $diskonAktif ? $diskonAktif->minimal_beli_grosir : 0 }}"
-                            data-lokasi-diskon="{{ $diskonAktif ? $diskonAktif->lokasi_berlaku : 'semua' }}"
-                            data-pelanggan-diskon="{{ $diskonAktif ? ($diskonAktif->id_pelanggan ?? '') : '' }}"
+                            data-diskon="{{ $diskonUmum ? $diskonUmum->besar_diskon : 0 }}"
+                            data-minimal-diskon="{{ $diskonUmum ? $diskonUmum->minimal_beli : 0 }}"
+                            data-minimal-diskon-grosir="{{ $diskonUmum ? $diskonUmum->minimal_beli_grosir : 0 }}"
+                            data-lokasi-diskon="{{ $diskonUmum ? $diskonUmum->lokasi_berlaku : 'semua' }}"
+                            data-pelanggan-diskon="{{ $diskonUmum ? ($diskonUmum->id_pelanggan ?? '') : '' }}"
                             data-semua-diskon="{{ $semuaDiskonJson }}">
                             <td class="py-3 font-medium text-gray-800">{{ $p->nama_produk }}</td>
                             <td class="py-3 text-gray-600">Rp {{ number_format($p->harga_satuan, 0, ',', '.') }}</td>
@@ -115,14 +124,14 @@
                                 </span>
                             </td>
                             <td class="py-3">
-                                @if($diskonAktif)
+                                @if($diskonUmum)
                                     <span class="px-2 py-0.5 bg-orange-100 text-orange-600 rounded-lg text-xs font-semibold">
-                                        {{ $diskonAktif->besar_diskon }}%
-                                        @if($diskonAktif->minimal_beli > 0)
-                                            | Eceran min {{ $diskonAktif->minimal_beli }}
+                                        {{ $diskonUmum->besar_diskon }}%
+                                        @if($diskonUmum->minimal_beli > 0)
+                                            | Eceran min {{ $diskonUmum->minimal_beli }}
                                         @endif
-                                        @if($diskonAktif->minimal_beli_grosir > 0)
-                                            | Grosir min {{ $diskonAktif->minimal_beli_grosir }}
+                                        @if($diskonUmum->minimal_beli_grosir > 0)
+                                            | Grosir min {{ $diskonUmum->minimal_beli_grosir }}
                                         @endif
                                     </span>
                                 @else
@@ -210,7 +219,10 @@
                                 class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]">
                             <option value="">-- Umum --</option>
                             @foreach($pelanggan as $p)
-                                <option value="{{ $p->id_pelanggan }}" data-diskon="0">
+                                @php
+                                    $diskonKhusus = $diskonPelanggan->get($p->id_pelanggan)?->first();
+                                @endphp
+                                <option value="{{ $p->id_pelanggan }}" data-diskon="{{ $diskonKhusus ? $diskonKhusus->besar_diskon : 0 }}">
                                     {{ $p->nama_pelanggan }}
                                 </option>
                             @endforeach
@@ -303,6 +315,7 @@
                 }
 
                 renderKeranjang();
+                calculateTotal();
             });
         }
     });

@@ -41,7 +41,7 @@ Route::middleware(['auth', 'role:kasir,pemilik,pemilik2'])->group(function () {
 
 // --- 4. ROUTE KHUSUS PEMILIK ---
 Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
-    // Sampah routes (kategori, produk, diskon)
+    // Sampah routes (kategori, produk, diskon, pelanggan, suplier)
     Route::get('/kategori/sampah', [KategoriController::class, 'sampah'])->name('kategori.sampah');
     Route::post('/kategori/sampah/{id}/pulihkan', [KategoriController::class, 'pulihkan'])->name('kategori.pulihkan');
     Route::delete('/kategori/sampah/{id}/hapus', [KategoriController::class, 'hapusPermanen'])->name('kategori.hapusPermanen');
@@ -51,6 +51,9 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
     Route::get('/diskon/sampah', [DiskonController::class, 'sampah'])->name('diskon.sampah');
     Route::post('/diskon/sampah/{id}/pulihkan', [DiskonController::class, 'pulihkan'])->name('diskon.pulihkan');
     Route::delete('/diskon/sampah/{id}/hapus', [DiskonController::class, 'hapusPermanen'])->name('diskon.hapusPermanen');
+    Route::get('/pelanggan/sampah', [PelangganController::class, 'sampah'])->name('pelanggan.sampah');
+    Route::post('/pelanggan/sampah/{id}/pulihkan', [PelangganController::class, 'pulihkan'])->name('pelanggan.pulihkan');
+    Route::delete('/pelanggan/sampah/{id}/hapus', [PelangganController::class, 'hapusPermanen'])->name('pelanggan.hapusPermanen');
 
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('produk', ProdukController::class);
@@ -106,6 +109,10 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
         Route::delete('/kasir/{id}', [PengaturanController::class, 'kasirDestroy'])->name('kasir.destroy');
 
         // Suplier — semua di bawah prefix pengaturan, nama route pengaturan.suplier.*
+        Route::get('/suplier/sampah', [SuplierController::class, 'sampah'])->name('suplier.sampah');
+        Route::post('/suplier/sampah/{id}/pulihkan', [SuplierController::class, 'pulihkan'])->name('suplier.pulihkan');
+        Route::delete('/suplier/sampah/{id}/hapus', [SuplierController::class, 'hapusPermanen'])->name('suplier.hapusPermanen');
+
         Route::get('/suplier', [SuplierController::class, 'index'])->name('suplier');
         Route::post('/suplier', [SuplierController::class, 'store'])->name('suplier.store');
         Route::get('/suplier/{id}/edit', [SuplierController::class, 'edit'])->name('suplier.edit');

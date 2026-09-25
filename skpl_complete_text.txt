@@ -1,0 +1,809 @@
+SYICDAKAIN-DOC-3015042803
+DOKUMENSPESIFIKASI KEBUTUHAN PERANGKAT LUNAK
+SIGMA (Sistem Informasi Gudang dan Manajemen Agro)
+Untuk:
+Hadi Prayitno {Owner}
+Disusun oleh:
+=== TABLE START ===
+NAMA | NIM
+Dany Darmawan | 362458302046
+Nur Ifani Chairun Nisa | 362458302048
+Moh. Syaifudin | 362458302109
+Inka Nazwa Fitri | 362458302047
+I Kadek Dika Darmadi | 362458302053
+=== TABLE END ===
+POLITEKNIK NEGERI BANYUWANGI
+TEKNOLOGI REKAYASA PERANGKAT LUNAK
+=== TABLE START ===
+ | BYTE {Bring Your Tech Energy} | Nomor Dokumen | Halaman
+ |  | SYICDAKAIN-DOC-3015042803 | 
+ |  | Revisi | {kode revisi} | 
+=== TABLE END ===
+DAFTAR PERUBAHAN
+=== TABLE START ===
+Revisi | Deskripsi
+A | 
+B | 
+C | 
+D | 
+E | 
+F | 
+G | 
+=== TABLE END ===
+=== TABLE START ===
+INDEX // TGL | - | A | B | C | D | E | F | G
+Ditulis oleh |  |  |  |  |  |  |  | 
+Diperiksa oleh |  |  |  |  |  |  |  | 
+Disetujui oleh |  |  |  |  |  |  |  | 
+=== TABLE END ===
+DAFTAR HALAMAN PERUBAHAN
+=== TABLE START ===
+Halaman | Revisi | Halaman | Revisi
+ |  |  | 
+=== TABLE END ===
+DAFTAR ISI
+1.Pendahuluan4
+1.1.Latar Belakang Pengembangan4
+1.2.Tujuan Pengembangan4
+1.3.Definisi, Istilah, dan Singkatan4
+1.4.Referensi4
+2.Kebutuhan Perangkat Lunak4
+2.1.Gambaran dan Deskripsi Umum Perangkat Lunak4
+2.2.Fungsi Utama Perangkat Lunak4
+2.3.Model Use Case4
+2.3.1.Definisi Actor dan Karakteristik Pengguna4
+2.3.2.Definisi Use Case4
+2.3.3.Diagram Use Case5
+3.Model Analisis5
+3.1.Skenario Use Case dan Diagram Activity5
+3.2.Analisis Class dan Realisasi Use Case5
+4.Model Perancangan5
+4.1.Deskripsi Atribut dan Method Class5
+4.2.Struktur Class dan Class Diagram5
+4.3.Interaksi Objek Perangkat Lunak dan Sequence Diagram5
+4.4.Rancangan User Interface5
+4.5.Struktur Basis Data5
+5.Traceability Use Case6
+Pendahuluan
+Latar Belakang Pengembangan
+Perkembangan teknologi informasi yang semakin pesat mendorong berbagai bidang usaha untuk memanfaatkan sistem berbasis digital dalam mendukung kegiatan operasional, termasuk pada bidang perdagangan dan distribusi barang. Penggunaan sistem informasi yang terintegrasi dapat membantu meningkatkan efisiensi kerja, ketepatan pengelolaan data, serta kualitas pelayanan kepada pelanggan. Namun, masih banyak usaha toko yang menjalankan proses bisnis secara manual sehingga menimbulkan berbagai kendala dalam pengelolaan operasional sehari-hari. Toko dan Gudang Sarana Agro Makmur merupakan salah satu usaha yang bergerak di bidang penjualan kebutuhan pertanian, bahan bangunan, dan perlengkapan kelistrikan. Dalam proses operasionalnya, pengelolaan data barang, pencatatan transaksi penjualan, serta pengelolaan stok antara toko dan gudang masih dilakukan secara manual. Data transaksi masih dicatat secara sederhana tanpa menggunakan sistem yang terintegrasi, sehingga sering terjadi ketidaksesuaian antara stok barang di toko dan stok di gudang.
+Permasalahan lain yang dihadapi adalah kesulitan dalam melakukan pengecekan stok barang secara cepat karena karyawan harus melakukan pengecekan langsung ke gudang. Kondisi tersebut menyebabkan pelayanan kepada pelanggan menjadi kurang efisien dan membutuhkan waktu yang lebih lama. Selain itu, proses pencatatan barang masuk dan barang keluar belum terdokumentasi dengan baik sehingga menyulitkan pemilik toko dalam melakukan pengawasan stok dan penyusunan laporan
+Dalam proses penjualan, toko juga belum memiliki sistem yang dapat membedakan harga berdasarkan jenis pembelian, seperti harga eceran dan harga grosir. Hal ini berpotensi menimbulkan kesalahan dalam transaksi penjualan serta kurang optimalnya pengelolaan data pelanggan tetap dan supplier. Penyusunan laporan penjualan dan laporan stok pun masih dilakukan secara manual sehingga membutuhkan waktu lebih lama dan rentan terhadap kesalahan pencatatan.
+Berdasarkan permasalahan tersebut, diperlukan sebuah Sistem Manajemen Toko dan Gudang berbasis web yang mampu mengintegrasikan pengelolaan stok, transaksi penjualan, data supplier, data pelanggan, serta laporan secara terpusat. Sistem ini diharapkan dapat membantu proses operasional menjadi lebih efektif, mempercepat pengecekan stok barang, meminimalkan kesalahan pencatatan, serta meningkatkan kualitas pelayanan kepada pelanggan.
+Dengan adanya sistem berbasis web, pemilik toko dapat memantau kondisi stok dan transaksi secara lebih akurat dan real-time, sedangkan karyawan dapat melakukan proses transaksi dengan lebih cepat dan terstruktur. Oleh karena itu, pengembangan sistem ini diharapkan menjadi solusi yang tepat dalam meningkatkan efisiensi operasional pada Toko Sarana Agro Makmur.
+Tujuan Pengembangan
+Tujuan dari pengembangan sistem ini diantaranya, adalah :
+Mengembangkan sistem pengelolaan data barang dan stok yang terintegrasi.Sistem ini dikembangkan untuk mempermudah pengelolaan data barang, kategori, serta stok antara toko dan gudang agar lebih terstruktur, akurat, dan sinkron sehingga dapat mengurangi kesalahan pencatatan serta ketidaksesuaian data stok.
+Meningkatkan efektivitas proses transaksi penjualan. Pengembangan sistem bertujuan untuk membantu proses transaksi penjualan menjadi lebih cepat, teratur, dan efisien melalui pencatatan transaksi secara otomatis, termasuk pengaturan harga eceran dan harga grosir sesuai jenis pembelian pelanggan.
+Mempermudah proses monitoring barang masuk dan keluar, sistem dikembangkan agar seluruh aktivitas barang masuk dan barang keluar dapat tercatat dengan baik sehingga memudahkan proses pengawasan stok, pencarian data, serta pengendalian persediaan barang.
+Membantu pengelolaan data supplier, pelanggan, dan laporan, Pengembangan sistem ini bertujuan untuk mempermudah pengelolaan data supplier dan pelanggan tetap, serta menyediakan laporan penjualan dan laporan stok secara akurat guna mendukung proses operasional dan pengambilan keputusan oleh pemilik toko.
+Meningkatkan efisiensi operasional dan kualitas pelayanan, Dengan adanya sistem berbasis web, proses pengecekan stok dan pengelolaan data dapat dilakukan secara lebih cepat tanpa pengecekan manual ke gudang sehingga dapat meningkatkan efisiensi kerja dan kualitas pelayanan pada Toko dan Gudang Toko Sarana Agro Makmur.
+Definisi, Istilah, dan Singkatan
+Tuliskan daftar definisi, istilah, dan singkatan yang muncul di dalam dokumen ini beserta penjelasannya agar tidak menimbulkan ambiguitas dan perbedaan persepsi dari pembaca dokumen ini.
+=== TABLE START ===
+Istilah/Singkatan | Definisi
+Admin | Pengelola sistem sekaligus pemilik yang bertanggung jawab terhadap pengelolaan data dan operasional sistem.
+Pemilik | Pengguna yang memiliki hak akses penuh untuk mengelola data produk, kategori, pelanggan, supplier, diskon, laporan, dan akun kasir
+Kasir | Pengguna yang bertugas melakukan transaksi penjualan dan melihat laporan penjualan sesuai hak akses yang diberikan.
+Produk | Barang yang dijual oleh toko dan dikelola dalam sistem inventaris.
+Kategori | Kelompok atau klasifikasi produk berdasarkan jenis tertentu.
+Pelanggan | Pihak yang melakukan pembelian produk pada toko.
+Supplier | Pihak yang menyediakan atau memasok produk ke toko.
+Transaksi | Aktivitas penjualan atau pembelian yang dicatat dalam sistem.
+Diskon | Potongan harga yang diberikan pada produk berdasarkan aturan tertentu.
+Stok Toko | Jumlah barang yang tersedia untuk dijual di toko.
+Stok Gudang | Jumlah barang yang tersedia di gudang sebagai persediaan.
+Transfer Stok | Proses pemindahan stok dari gudang ke toko.
+Laporan Penjualan | Informasi hasil rekap transaksi penjualan dalam periode tertentu.
+Laporan Pembelian | Informasi hasil rekap transaksi pembelian barang dari supplier.
+Dashboard | Halaman utama yang menampilkan ringkasan informasi dan statistik sistem.
+CRUD | Singkatan dari Create, Read, Update, Delete, yaitu operasi dasar pengelolaan data.
+SKU | Stock Keeping Unit, kode unik yang digunakan untuk mengidentifikasi produk.
+Login | Proses autentikasi pengguna untuk masuk ke dalam sistem menggunakan akun yang valid.
+Use Case | Deskripsi fungsi atau layanan yang dapat dilakukan oleh aktor pada sistem.
+DB | Database, tempat penyimpanan seluruh data yang digunakan oleh sistem.
+CSV | Comma Separated Values, format file yang digunakan untuk ekspor laporan data.
+=== TABLE END ===
+Referensi
+Referensi yang digunakan dalam penulisan isi dokumen ini yaitu:
+Hasil wawancara/observasi dengan pemilik usaha toko dan gudang sarana agro makmur(owner).
+Hasil wawancara/observasi dengan kasir toko selaku karyawan
+Kebutuhan Perangkat Lunak
+Gambaran dan Deskripsi Umum Perangkat Lunak
+Gambaran Umum
+Sistem Informasi Manajemen Toko dan Gudang Toko Sarana Agro Makmur merupakan sistem berbasis web yang dikembangkan untuk membantu proses pengelolaan operasional toko dan gudang secara terintegrasi. Sistem ini dirancang untuk mengatasi berbagai permasalahan yang sebelumnya masih dilakukan secara manual, seperti pencatatan transaksi penjualan, pengelolaan stok barang, pencatatan barang masuk dan keluar, serta penyusunan laporan. Melalui sistem ini, proses pengelolaan data barang antara toko dan gudang dapat dilakukan secara lebih cepat, akurat, dan real-time. Sistem juga mendukung pengelolaan harga berdasarkan jenis pembelian, yaitu harga eceran dan harga grosir, sehingga mempermudah proses transaksi penjualan. Selain itu, sistem menyediakan fitur pengelolaan supplier, pelanggan tetap, serta laporan penjualan dan stok untuk membantu pemilik toko dalam memantau aktivitas operasional secara lebih efektif. Dibawah merupakan gambar proses bisnis dari sistem manajemen toko dan gudang sarana agro makmur.
+ [IMAGE/DRAWING (1)]
+Gambar 1. Proses Bisnis
+Deskripsi Umum
+Sistem ini memiliki dua jenis pengguna, yaitu Admin dan Kasir. Admin berperan sebagai pemilik toko yang memiliki akses penuh terhadap seluruh fitur sistem, seperti pengelolaan data barang, kategori, supplier, pelanggan, stok toko dan gudang, barang masuk dan keluar, transaksi penjualan, serta laporan. Admin juga dapat memantau kondisi stok barang dan aktivitas penjualan secara real-time. Sementara itu, Kasir bertugas untuk melakukan transaksi penjualan dan membantu proses pelayanan pelanggan. Kasir dapat mengakses data barang dan informasi stok yang tersedia sehingga proses transaksi dapat dilakukan dengan lebih cepat tanpa perlu melakukan pengecekan manual ke gudang.
+Sistem berbasis web ini dilengkapi dengan pengelolaan stok terintegrasi antara toko dan gudang, pencatatan transaksi otomatis, serta penyajian laporan secara akurat. Dengan adanya sistem ini, diharapkan proses operasional toko menjadi lebih efisien, meminimalkan kesalahan pencatatan, serta meningkatkan kualitas pelayanan pelanggan.
+Fungsi Utama Perangkat Lunak
+Kebutuhan Fungsional Pemilik
+=== TABLE START ===
+No | Kode Unik | Deskripsi
+1. | KF01 | Pemilik dapat melakukan login ke sistem
+2. | KF02 | Pemilik dapat mengelola kategori produk (tambah, edit, hapus)
+3. | KF03 | Pemilik dapat mengelola produk (tambah, edit, hapus)
+4. | KF04 | Pemilik dapat mengelola data supplier (tambah, edit, hapus)
+5. | KF05 | Pemilik dapat mengelola akun kasir (tambah, edit, hapus)
+6. | KF06 | Pemilik dapat mengelola harga grosir dan satuan (tambah, edit, hapus)
+7. | KF07 | Pemilik dapat mengelola data pelanggan (tambah, edit, hapus)
+8. | KF08 | Pemilik dapat mengelola diskon produk
+9. | KF09 | Pemilik dapat mengelola barang masuk ( pembelian )
+10. | KF10 | Pemilik dapat mengelola stok barang (menyesuaikan stok, memindahkan stok)
+11. | KF11 | Pemilik dapat melihat laporan penjualan
+ |  | 
+ |  | 
+ |  | 
+=== TABLE END ===
+Kebutuhan Fungsional Kasir
+=== TABLE START ===
+No | Kode Unik | Deskripsi
+1. | KF12 | Kasir dapat melakukan login ke sistem
+2. | KF13 | Kasir dapat melihat laporan penjualan
+3. | KF14 | kasir dapat melihat produk dan stok
+4. | KF15 | kasir dapat melakukan transaksi
+=== TABLE END ===
+Kebutuhan Non-Fungsional
+=== TABLE START ===
+No | Kode Unik | Deskripsi
+1. | KNF20 | Website bisa di akses di browser modern
+2. | KNF21 | Sistem tersedia 24 jam
+3. | KNF22 | Sistem memiliki keamanan login dengan enkripsi password.3
+=== TABLE END ===
+Model Use Case
+Definisi Actor dan Karakteristik Pengguna
+=== TABLE START ===
+No | Actor | Deskripsi | Karakteristik
+1. | Pemilik | Pengguna yang memiliki hak akses penuh terhadap sistem manajemen toko dan gudang Sarana Agro Makmur. | Karakteristik dari actor ini diantaranya adalah memiliki otorisasi untuk login sebagai pemilik, mengelola data barang, kategori barang, supplier, dan pengguna sistem, dapat melihat penjualan dan pembelian, memantau stok barang, serta melihat dan mencetak laporan penjualan, pembelian, persediaan, dan laba rugi.
+2. | Kasir | Pengguna yang bertugas melayani transaksi penjualan dan membantu pengelolaan stok barang di toko. | Karakteristik dari actor ini diantaranya adalah memiliki otorisasi untuk login sebagai kasir, dapat mengelola transaksi penjualan, mencari dan melihat data barang, memperbarui stok sesuai transaksi yang dilakukan, mencetak nota penjualan, melihat laporan penjualan, serta melihat data transaksi yang menjadi tanggung jawabnya
+=== TABLE END ===
+Definisi Use Case
+Buat daftar use case yang akan dijadikan sebagai pedoman pengembangan. Setiap use case utama berkaitan dengan masing-masing kebutuhan fungsional. Use case tambahan atau pendukung dimungkinkan akan muncul dan melengkapi use case utama berdasarkan analisis mendalam terhadap kebutuhan fungsional tersebut. Berikan penjelasan atau definisi untuk setiap use case.
+=== TABLE START ===
+KODE | FUNGSI | AKTOR | DESKRIPSI
+UC01 | Login | Kasir, Pemilik | Aktor melakukan autentikasi ke dalam sistem menggunakan username dan password untuk mengakses fitur sesuai hak aksesnya.
+UC02 | Mencatat Transaksi | Kasir | Kasir melakukan pencatatan transaksi penjualan produk kepada pelanggan serta menyimpan data transaksi ke sistem.
+UC03 | Melihat Produk dan Stok | Kasir | Kasir melihat informasi produk yang tersedia beserta jumlah stok yang ada di gudang atau toko.
+UC04 | Mengelola Laporan Penjualan | Kasir | Kasir melihat laporan penjualan yang berisi total transaksi dan total penjualan dalam periode tertentu.
+UC06 | Mengelola Kategori Produk | Pemilik | Pemilik menambah, mengubah, dan menghapus kategori produk yang digunakan dalam sistem.
+UC07 | Mengelola Produk | Pemilik | Pemilik menambah, mengubah, dan menghapus data produk yang dijual pada toko.
+UC08 | Mengelola Akun Kasir | Pemilik | Pemilik menambah, mengubah, dan menghapus akun kasir yang digunakan untuk mengoperasikan sistem.
+UC09 | Mengelola Data Supplier | Pemilik | Pemilik mengelola data supplier yang menjadi pemasok barang ke toko.
+UC10 | Mengelola Harga Grosir dan Satuan | Pemilik | Pemilik mengatur harga jual produk dalam bentuk harga grosir maupun harga satuan.
+UC11 | Mengelola Diskon | Pemilik | Pemilik menambah, mengubah, dan menghapus data diskon yang berlaku pada produk atau transaksi.
+UC12 | Mengelola Stok Barang | Pemilik | Pemilik memantau dan mengelola jumlah stok barang yang tersedia di toko maupun gudang.
+UC13 | Mengelola Data Pelanggan | Pemilik | Pemilik menambah, mengubah, dan menghapus data pelanggan yang terdaftar dalam sistem.
+UC14 | Melihat Laporan Penjualan | Pemilik | Pemilik melihat laporan penjualan yang mencakup total penjualan, total transaksi, total pembelian, dan laba rugi.
+UC15 | Mencatat Barang Masuk (Pembelian) | Pemilik | Pemilik mencatat data pembelian atau barang masuk dari supplier untuk memperbarui stok barang.
+UC16 | Mengelola Diskon Produk | Pemilik | Pemilik menambah, mengubah, dan menghapus diskon yang diterapkan pada produk tertentu.
+UC17 | Melihat Keuntungan dan Kerugian | Pemilik | Pemilik melihat informasi keuntungan dan kerugian berdasarkan data penjualan dan pembelian yang tersimpan dalam sistem.
+=== TABLE END ===
+Diagram Use Case
+ [IMAGE/DRAWING (1)]
+Model Analisis
+Skenario Use Case dan Diagram Activity
+3.1.1. Skenario Use Case
+Login (Nur Ifani Chairun Nisa) (SUC01)
+=== TABLE START ===
+Nama use-case | : | Login
+Deskripsi | : | Proses pengguna masuk ke sistem menggunakan akun yang telah terdaftar.
+Ketergantungan | : | 
+Aktor | : | Pemilik, Kasir
+Prakondisi | : | Pengguna sudah memiliki akun.
+Paskakondisi | : | Pengguna berhasil masuk ke sistem.
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pengguna membuka halaman login // Sistem menampilkan form login // Pengguna memasukkan username dan password // Sistem memvalidasi data // Pengguna menekan tombol login // Sistem memvalidasi data
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pengguna memasukan password salah // sistem menampilkan pesan bahwa, password salah
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pengguna tidak mengisi username atau password // Sistem menampilkan pesan bahwa data harus diisi
+=== TABLE END ===
+Melihat Produk dan Stok (Moh Syaifudin) (SUC02)
+=== TABLE START ===
+Nama use-case | : | Melihat Produk & Stok
+Deskripsi | : | Proses kasir melihat daftar produk dan stok barang
+Ketergantungan | : | login
+Aktor | : | Kasir
+Prakondisi | : | Kasir sudah login
+Pascakondisi | : | Data produk dan stok ditampilkan
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Kasir membuka menu produk // Sistem menampilkan daftar produk // Kasir melihat stok barang // Sistem menampilkan jumlah stok
+Skenario-Skenario Alternatif // Mengubah Data Produk // Nama Aktor // Sistem // Kasir melihat produk // A1 - Stok kosong // Sistem menampilkan pesan stok habis
+Skenario-Skenario Error // Data Produk Tidak Lengkap // Nama Aktor // Sistem // Kasir membuka menu produk // Sistem menampilkan error // E1 - Gagal memuat data
+=== TABLE END ===
+Mencatat Transaksi Penjualan (Inka Nazwa Fitri) (SUC03)
+=== TABLE START ===
+Nama use-case | : | Mencatat Transaksi Penjualan
+Deskripsi | : | Proses kasir mencatat transaksi penjualan dengan harga otomatis (member/non-member)
+Ketergantungan | : | login
+Aktor | : | Kasir
+Prakondisi | : | Kasir sudah login
+Pascakondisi | : | Transaksi tersimpan dan stok berkurang
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Kasir membuka menu transaksi // Sistem menampilkan form transaksi // Kasir memilih pelanggan // Sistem mengecek status pelanggan // Kasir memilih produk // Sistem menampilkan harga // Kasir memasukkan jumlah // Sistem menentukan jenis harga // jika member ≥3 maka harga grosirJika member <3 maka harga satuan // Jika non-member maka harga satuan // Kasir menekan simpan // sistem menyimpan data // sistem mengurangi stok
+
+Skenario-Skenario Alternatif // Mengubah Data Produk // Nama Aktor // Sistem // Kasir tidak memilih pelanggan // A1 - Non-member // Sistem menganggap non-member // Kasir input jumlah lebih // A2- Stok tidak cukup // Sistem menolak transaksi , pesan “stok tidak cukup”
+Skenario-Skenario Error // Data Produk Tidak Lengkap // Nama Aktor // Sistem // Kasir tidak isi jumlah // E1 - Data tidak lengkap // Sistem menampilkan error
+=== TABLE END ===
+Mengelola Laporan Penjualan (Dany Darmawan) (SUC04)
+=== TABLE START ===
+Nama use-case | : | Mengelola Laporan Penjualan
+Deskripsi | : | Proses Kasir melihat dan mencetak laporan penjualan
+Ketergantungan | : | login
+Aktor | : | Kasir
+Prakondisi | : | Kasir sudah berhasil login ke dalam sistem.
+Pascakondisi | : | Laporan ditampilkan atau dicetak
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Kasir membuka laporan // Sistem menampilkan data // Kasir memilih tanggal // Sistem menampilkan data sesuai tanggal // Kasir mengekspor laporan // sistem menampilkan pesan berhasil di ekspor
+Skenario-Skenario Alternatif // Mengubah Data Produk // Nama Aktor // Sistem // Kasir memilih filter (produk/kategori) // Sistem menampilkan pesan // A1 - Data kosong // A2 - Menampilkan data sesuai filter
+Skenario-Skenario Error // Data Produk Tidak Lengkap // Nama Aktor // Sistem // Kasir mengekspor laporan // Sistem gagal mencetak // E1 - Gagal ekspor
+=== TABLE END ===
+Mengelola Produk (I Kadek Dika Darmadi) (SUC05)
+=== TABLE START ===
+Nama use-case | : | Mengelola Produk
+Deskripsi | : | Proses pemilik menambah, mengubah, dan menghapus data produk yang tersimpan di dalam sistem.
+Ketergantungan | : | login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah berhasil login ke dalam sistem.
+Pascakondisi | : | Data produk berhasil ditambahkan, diperbarui, atau dihapus dari sistem.
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu produk // Sistem menampilkan daftar produk // Pemilik memilih opsi kelola produk // Sistem menampilkan halaman pengelolaan produk // Pemilik memilih tambah produk // Sistem menampilkan form tambah produk // Pemilik memasukkan data produk // Sistem memproses data produk // Pemilik menekan tombol simpan // Sistem memvalidasi data
+Skenario-Skenario Alternatif // Mengubah Data Produk // Nama Aktor // Sistem // Pemilik memilih salah satu produk // Sistem menampilkan detail produk // Pemilik mengubah data produk // Sistem memproses perubahan data // Pemilik menyimpan perubahan // sistem memvalidasi data
+Skenario-Skenario Error // Data Produk Tidak Lengkap // Nama Aktor // Sistem // Pemilik mengisi data produk tidak lengkap // Sistem memvalidasi data produk // Pemilik menekan tombol simpan // Sistem menolak penyimpanan dan menampilkan pesan bahwa data produk harus dilengkapi
+=== TABLE END ===
+Mengelola Kategori Produk (Nur Ifani Chairun Nisa) (SUC06)
+=== TABLE START ===
+Nama use-case | : | Mengelola Kategori Produk
+Deskripsi | : | Proses pemilik menambah, mengubah, dan menghapus kategori produk.
+Ketergantungan | : | login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah berhasil login ke dalam sistem.
+Pascakondisi | : | Data kategori produk berhasil ditambahkan, diperbarui, atau dihapus dari sistem.
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu kategori produk // Sistem menampilkan daftar kategori // Pemilik memilih tambah/edit/hapus kategori // Sistem menampilkan form kategori // Pemilik mengisi data kategori // Sistem menerima data // Pemilik menekan tombol simpan // Sistem menyimpan data kategori
+Skenario-Skenario Alternatif // Mengubah Data Produk // Nama Aktor // Sistem // Pemilik memasukkan kategori yang sama // A1 - Nama kategori sudah ada // Sistem menampilkan pesan bahwa kategori sudah tersedia
+Skenario-Skenario Error // Data Produk Tidak Lengkap // Nama Aktor // Sistem // Pemilik tidak mengisi nama kategori // E1 - Data Kosong // Sistem menampilkan pesan bahwa data harus diisi
+=== TABLE END ===
+Mengelola data supplier (Moh Syaifudin) (SUC07)
+=== TABLE START ===
+Nama use-case | : | Mengelola data supplier
+Deskripsi | : | Pemilik mengelola data supplier yang menyediakan barang.
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login
+Paskakondisi | : | Data supplier berhasil disimpan.
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu supplier // Sistem menampilkan daftar supplier // Pemilik memilih tambah/edit/hapus data // Sistem menampilkan form supplier // Pemilik mengisi data supplier // Sistem menerima data // pemilik menekan tombol simpan // sistem menyimpan data suplier
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik tidak mengisi data supplier // A1 - Data supplier sudah ada // Sistem menampilkan pesan peringatan
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik tidak mengisi data supplier // E1 - Data supplier tidak lengkap // Sistem menampilkan pesan error
+=== TABLE END ===
+Mencatat Barang Masuk dari Supplier (Inka Nazwa Fitri) (SUC08)
+=== TABLE START ===
+Nama use-case | : | Mencatat Barang Masuk (Supplier)
+Deskripsi | : | Proses pemilik mencatat pembelian barang dari supplier (barang masuk ke gudang)
+Ketergantungan | : | login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login ke sistem.
+Paskakondisi | : | Data pembelian tersimpan dan stok bertambah
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu pembelian // Sistem menampilkan form pembelian // Pemilk memilih supplier // Sistem menampilkan data supplier // Pemilik memasukkan data barang dan jumlah // Sistem menerima data // Pemilik menekan tombol simpan // Sistem menyimpan data pembelian // Sistem menambahkan stok barang
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memiih barang yang belum terdaftar // A1 - Barang belum tersedia // Sistem meminta menambahkan data produk terlebih dahulu
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik tidak mengisi data pembelian // E1 - Data tidak lengkap // Sistem menampilkan pesan error
+=== TABLE END ===
+Mengelola Akun Kasir (Dany Darmawan) (SUC09)
+=== TABLE START ===
+Nama use-case | : | Mengelola akun kasir
+Deskripsi | : | Proses pemilik mengelola akun kasir, termasuk menambah, mengubah, dan menghapus akun.
+Ketergantungan | : | login
+Aktor | : | pemilik
+Prakondisi | : | Pemilik sudah login ke sistem
+Paskakondisi | : | Akun kasir berhasil ditambahkan, diperbarui, atau dihapus.
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu akun kasir. // Sistem menampilkan daftar akun kasir. // Pemilik memilih tambah akun // sistem menampilkan form tambah akun.
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memilih akun kasir yang ada // sistem menampilkan detail akun. // Pemilik mengubah data akun // sistem menyimpan perubahan
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik mengisi data akun tidak lengkap // sistem menampilkan pesan “Data akun harus dilengkapi.”
+=== TABLE END ===
+Mengelola Stok Barang (I Kadek Dika Darmadi) (SUC010)
+=== TABLE START ===
+Nama use-case | : | Mengelola Stok Barang
+Deskripsi | : | Proses pemilik dalam mengatur dan memperbarui jumlah stok barang
+Ketergantungan | : | login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login ke sistem.
+Paskakondisi | : | Stok barang berhasil diperbarui
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu stok barang // Sistem menampilkan daftar stok // Pemilik memilih barang // Sistem menampilkan detail stok // Pemilik mengubah jumlah stok // Sistem menerima perubahan // Pemilik menekan tombol simpan // Sistem memperbarui stok barang
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memasukkan jumlah negatif // A1 - Stok tidak valid // Sistem menampilkan peringatan
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik tidak mengisi jumlah stok // E1 - Data kosong // Sistem menampilkan pesan error
+=== TABLE END ===
+Mengelola Harga Grosir dan Satuan (I Kadek Dika Darmadi) (SUC011)
+=== TABLE START ===
+Nama use-case | : | Mengelola Harga Grosir & Satuan
+Deskripsi | : | Proses pemilik dalam mengatur harga satuan dan harga grosir produk
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login
+Paskakondisi | : | Harga produk berhasil disimpan
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu produk // Sistem menampilkan daftar produk // Pemilik memilih produk // Sistem menampilkan detail produk // Pemilik menginput harga satuan dan grosir // Sistem menerima data // Pemilik menekan tombol simpan // Sistem menyimpan harga produk
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memasukkan harga grosir lebih tinggi dari satuan // A1 - Harga tidak valid // Sistem menampilkan peringatan
+Skenario-Skenario Error // data tidak tersedia // Nama Aktor // Sistem // Pemilik tidak mengisi harga // E1 - Data kosong // Sistem menampilkan pesan error
+=== TABLE END ===
+Mengelola Data Pelanggan (Moh Syaifudin) (SUC012)
+=== TABLE START ===
+Nama use-case | : | Mengelola Data Pelanggan
+Deskripsi | : | Proses pemilik dalam menambah, mengubah dan menghapus data pelanggan (member-nonmember)
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login ke sistem
+Paskakondisi | : | Data pelanggan berhasil disimpan atau diperbarui
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu pelanggan // Sistem menampilkan daftar pelanggan // Pemilik memilih tambah/edit/hapus pelanggan // Sistem menempilkan form pelanggan // Pemilik mengisi data pelanggan // Sistem menerima data // Pemilik menekan tombol simpan // Sistem menyimpan data pelanggan
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memasukkan data pelanggan yang sama // A1 - Data pelanggan sudah ada // Sistem menampilkan pesan peringatan
+Skenario-Skenario Error // data tidak tersedia // Nama Aktor // Sistem // Pemilik tidak mengisi data pelanggan // E1 - Data tidak lengkap // Sistem menampilkan pesan bahwa data harus diisi
+=== TABLE END ===
+Melihat Laporan Penjualan (Dany Darmawan) (SUC013)
+=== TABLE START ===
+Nama use-case | : | Melihat Laporan Penjualan
+Deskripsi | : | Proses pemilik dalam melihat laporan penjualan berdasarkan periode waktu dan kategori
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | pemilik sudah login ke sistem
+Paskakondisi | : | Laporan penjualan ditampilkan atau dicetak
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu laporan penjualan // Sistem menampilkan halaman laporan // Pemilik memilih periode tanggal // Sistem menerima input // Pemilik memilih kategori (opsional) // Sistem meproses data // Pemilik memilih cetak laporan // Sistem menampilkan laporan penjualan // Sistem mencetak laporan
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memilih periode tanpa transaksi // A1 - Tidak ada data // Sistem menampilkan pesan bahwa data tidak tersedia
+Skenario-Skenario Error // data tidak tersedia // Nama Aktor // Sistem // Sistem menampilkan pesan error // E1 - Gagal menghitung
+=== TABLE END ===
+Mengelola Diskon (Nur Ifani Chairun Nisa) (SUC014)
+=== TABLE START ===
+Nama use-case | : | Mengelola Diskon
+Deskripsi | : | Proses pemilik dalam menambahkan, mengubah, dan menghapus data diskon untuk produk.
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | Pemilik sudah login
+Paskakondisi | : | Data diskon tersimpan atau diperbarui
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu diskon // Sistem menampilkan daftar diskon // Pemilik memilih tambah/edit/hapus diskon // Sistem menampilkan form diskon // Pemilik mengisi data diskon (nama, besar diskon, periode, dll) // Sistem menerima data // Memilih Produk Diskon // Sistem menyimpan produk dipilih // Pemilik menekan tombol simpan // Sistem menyimpan data diskon
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memasukkan diskon yang sama // A1 - Diskon sudah ada // Sistem menampilkan pesan peringatan
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik tidak mengisi data diskon // E1 - Data diskon tidak lengkap // Sistem menampilkan pesan error
+=== TABLE END ===
+Mengatur Diskon Produk (Inka Nazwa Fitri) (SUC015)
+=== TABLE START ===
+Nama use-case | : | Mengatur diskon produk
+Deskripsi | : | Proses pemilik dalam menetapkan diskon pada produk tertentu
+Ketergantungan | : | 
+Aktor | : | Pemilik
+Prakondisi | : | Data produk tersedia, Data diskon tersedia
+Paskakondisi | : | Produk memiliki diskon aktif
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu diskon produk // Sistem menampilkan daftar produk // Pemilik memilih produk // Sistem menampilkan detail produk // Pemilik memilih diskon // Sistem menampilkan daftar diskon // Pemilik menekan tombol simpan // Sistem menyimpan relasi diskon produk
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memilih produk tanpa diskon // A1 - Produk tanpa diskon // Sistem menyimpan tanpa diskon
+Skenario-Skenario Error // Nama & kode skenario error // Nama Aktor // Sistem // Pemilik belum memilih produk atau diskon // E1 - Data tidak lengkap // Sistem menampilkan pesan error
+=== TABLE END ===
+Melihat Keuntungan dan Kerugian (Dany Darmawan) (SUC016)
+=== TABLE START ===
+Nama use-case | : | Melihat Keuntungan dan Kerugian
+Deskripsi | : | Proses pemilik dalam melihat laporan keuntungan dan kerugian berdasarkan data penjualan dan pembelian
+Ketergantungan | : | Login
+Aktor | : | Pemilik
+Prakondisi | : | pemilik sudah login ke sistem
+Paskakondisi | : | Informasi keuntungan atau kerugian ditampilkan
+Skenario-Skenario:
+Skenario Normal // Nama Aktor // Sistem // Pemilik membuka menu laporan keuntungan // Sistem menampilkan halaman laporan // Pemilik memilih periode waktu // Sistem memproses data // Sistem menghitung total pemasukan dan pengeluaran // Sistem menampilkan hasil keuntungan atau kerugian
+Skenario-Skenario Alternatif // Nama & kode skenario alternatif // Nama Aktor // Sistem // Pemilik memilih periode tanpa transaksi // A1 - Tidak ada data // Sistem menampilkan pesan bahwa data tidak tersedia
+Skenario-Skenario Error // data tidak tersedia // Nama Aktor // Sistem // Sistem menampilkan pesan error // E1 - Gagal menghitung
+
+=== TABLE END ===
+3.1.2.
+Activity Diagram
+Login (Nur Ifani Chairun Nisa) (AD01)
+ [IMAGE/DRAWING (1)]
+Melihat Produk dan Stok (Moh Syaifudin) (AD02)
+ [IMAGE/DRAWING (1)]
+Mencatat Transaksi Penjualan (Inka Nazwa Fitri) (AD03)
+ [IMAGE/DRAWING (2)]
+Mengelola Laporan Penjualan (Dany Darmawan) (AD04)
+ [IMAGE/DRAWING (1)]
+Mengelola Produk (I Kadek Dika Darmadi) (AD05)
+ [IMAGE/DRAWING (1)]
+Mengelola Kategori Produk (Nur Ifani Chairun Nisa) (AD06)
+ [IMAGE/DRAWING (2)]
+Mengelola data supplier (Moh Syaifudin) (AD07)
+ [IMAGE/DRAWING (2)]
+Mencatat Barang Masuk dari Supplier (Inka Nazwa Fitri) (AD08)
+ [IMAGE/DRAWING (1)]
+Mengelola Akun Kasir (Dany Darmawan) (AD09)
+ [IMAGE/DRAWING (2)]
+Mengelola Stok Barang (I Kadek Dika Darmadi) (AD010)
+ [IMAGE/DRAWING (1)]
+Mengelola Harga Grosir dan Satuan (I Kadek Dika Darmadi) (AD011)
+ [IMAGE/DRAWING (1)]
+Mengelola Data Pelanggan (Moh Syaifudin) (AD012)
+ [IMAGE/DRAWING (1)]
+Melihat Laporan Penjualan (Dany Darmawan) (AD013)
+ [IMAGE/DRAWING (1)]
+Mengelola Diskon (Nur Ifani Chairun Nisa) (AD014)
+ [IMAGE/DRAWING (1)]
+Mengatur Diskon Produk (Inka Nazwa Fitri) (AD015)
+ [IMAGE/DRAWING (1)]
+Melihat Keuntungan dan Kerugian (Dany Darmawan) (AD016)
+ [IMAGE/DRAWING (1)]
+Analisis Class dan Realisasi Use Case
+3.2.1. Analisis Class
+=== TABLE START ===
+Class | Atribut | Method
+User | id, nama, email, password, role | pemilikIndex(), pemilikUpdate(Request request), kasir(), kasirStore(Request request), kasirEdit(id), kasirUpdate(Request request, id), kasirDestroy(id)
+Dashboard | - | index(Request request)
+Kategori | id_kategori, nama_kategori, status | index(), create(), store(Request request), edit(id), update(Request request, id), destroy(id)
+Pelanggan | id_pelanggan, nama_pelanggan, no_hp, alamat, tipe | index(), create(), store(Request request), edit(id), update(Request request, id), destroy(id)
+Supplier | id_supplier, nama_supplier, alamat, no_hp | supplier(), supplierStore(Request request), supplierUpdate(Request request, id), supplierDestroy(id)
+Produk | id_produk, kode_produk, nama_produk, id_kategori, harga_satuan, harga_grosir, minimal_grosir, stok_gudang, stok_toko, isi_per_dus, satuan | index(Request request), transaksiToko(Request request, id), destroy(id)
+Diskon | id_diskon, nama_diskon, besar_diskon, minimal_beli, minimal_beli_grosir, mulai_dari, selesai_dari, id_supplier, lokasi_berlaku, id_pelanggan, status, aplikasi_diskon | index(), create(), store(Request request), edit(id), update(Request request, id), destroy(id), isAktifHariIni(): bool
+Diskon Produk | id_diskon, id_produk | -
+Transaksi | id_transaksi, id_pelanggan, id_user, id_supplier, tanggal, total, jenis, metode_pembayaran, keterangan | index(), create(), store(Request request), show(id), destroy(id), indexPembelian(), createPembelian(), storePembelian(Request request), showPembelian(id), destroyPembelian(id)
+DetailTransaksi | id_detail_transaksi, id_transaksi, id_produk, tipe, tipe_stok, jumlah, harga, harga_beli, nominal_diskon, subtotal | -
+DetailPembelian | id_detail_pembelian, id_pembelian, id_produk, jumlah, harga_beli, subtotal | -
+LaporanPembelian | id_pembelian, tanggal, total | -
+Laporan | - | index(Request request)
+=== TABLE END ===
+3.2.2. Realisasi Use Case
+=== TABLE START ===
+Use Case | Class Terkait | Method yang digunakan
+UC01 | User | Login/Authentication
+UC02 | TransaksiController, Transaksi, DetailTransaksi, Produk | index(), create(), store(), show(), destroy()
+UC03 | ProdukController, Produk, Kategori | idnex()
+UC04 | LaporanController, Transaksi | index(), exportExcel()
+UC05 |  | 
+UC06 | KategoriController, Kategori | index(), create(), store(), edit(), update(), destroy()
+UC07 | ProdukController, Produk, Kategori | index(), create(), store(), edit(), update(), destroy()
+UC08 | PengaturanController, User | kasir(), kasirStore(), kasirEdit(), kasirUpdate(), kasirDestroy()
+UC09 | SupplierController, Supplier | index(), store(), edit(), update(), destroy()
+UC10 | ProdukController, Produk | store(), update()
+UC11 | DiskonController, Diskon | index(), create(), store(), edit(), update(), destroy()
+UC12 | ProdukController, Produk | update(), transferStok()
+UC13 | PelangganController, Pelanggan | index(), create(), store(), edit(), update(), destroy()
+UC14 | LaporanController, Transaksi | index()
+UC15 | TransaksiController, Transaksi, DetailTransaksi, Produk, LaporanPembelian | indexPembelian(), createPembelian(), storePembelian(), showPembelian(), destroyPembelian()
+UC16 | DiskonController, Diskon, Produk | store(), update()
+UC17 | LaporanController, Transaksi, LaporanPembelian | index()
+=== TABLE END ===
+Model Perancangan
+Deskripsi Atribut dan Method Class
+Buat daftar atribut dan method untuk setiap class yang menyusun sistem perangkat lunak.
+Daftar Atribut dan Method Class
+Nama class: User
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id | int | private
+name | string | protected
+email | string | protected
+password | string | private
+role | string | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index() | public | Parameter: - / Return type: view / Fungsi: Menampilkan daftar user
+create() | public | Parameter: - // Return type: view // Fungsi: menampilkan form tambah user
+store(Request request) | public | Parameter: Request / Return type: redirect / Fungsi: Menyimpan user baru
+edit($id) | public | Parameter: $id / Return type: view / Fungsi: Menampilkan form edit user
+update(Request $request, $id) | public | Parameter: Request, $id / Return type: redirect / Fungsi: Memperbarui data user
+login() | public | Parameter: - / Return type: view / Fungsi: Menampilkan halaman login
+lupaPassword() | public | Parameter: - / Return type: view / Fungsi: Menampilkan form lupa password
+kasirStore(Request $request) | public | Parameter: Request / Return type: redirect / Fungsi: Proses login user
+kasirUpdateRequest($request, $id) | public | Parameter: Request, $id / Return type: redirect / Fungsi: Update password
+kusorDestroy($id) | public | Parameter: $id / Return type: redirect / Fungsi: Menghapus user
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: kategori
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_kategori | string | private
+nama_kategori | string | protected
+status | string | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+inde() | public | Parameter: - // Return type: view // Fungsi: menampilkan daftar kategori
+create() | public | Parameter: - // Return type: view // Fungsi: menampilkan form kateori
+store($request) | public | Parameter: Request // Return type: redirect // Fungsi: menyimpan kategori baru
+edit($id) | public | Parameter: $id // Return type: view // Fungsi: menampilkan edit kategori
+update($request, $id) | public | Parameter: Request, $id // Return type: view // Fungsi: memperbarui data kategori
+destroy($id) | public | Parameter: $id // Return type: view // Fungsi: menghapus kategori
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Transaksi
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_transaksi | int | private
+tanggal | date | protected
+id_user | int (FK) | protected
+id_pelanggan | int (FK) | protected
+subtotal | int | protected
+total_diskon | int | protected
+total | int | protected
+bayar | int | protected
+kembalian | int | protected
+metode_pembayaran | string | protected
+keterangan | text | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index() | public | Parameter: - / Return type: view / Fungsi: Menampilkan daftar transaksi
+create() | public | Parameter: - / Return type: view / Fungsi: Menampilkan form transaksi baru
+store(Request $request) | public | Parameter: Request / Return type: redirect / Fungsi: Menyimpan transaksi baru
+show($id) | public | Parameter: $id / Return type: view / Fungsi: Menampilkan detail transaksi
+destroy($id) | public | Parameter: $id / Return type: redirect / Fungsi: Menghapus transaksi
+indexPembelian() | public | Parameter: - / Return type: view / Fungsi: Menampilkan daftar pembelian
+createPembelian() | public | Parameter: - / Return type: view / Fungsi: Form transaksi pembelian
+storePembelian(Request $request) | public | Parameter: Request / Return type: redirect / Fungsi: Simpan transaksi pembelian
+showPembelian($id) | public | Parameter: $id / Return type: view / Fungsi: Detail transaksi pembelian
+destroyPembelian($id) | public | Parameter: $id / Return type: redirect / Fungsi: Hapus transaksi pembelian
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: DetailTransaksi
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_detail_transaksi | int | private
+id_transaksi | int(FK) | protected
+id_produk | int (FK) | protected
+tipe | string | protected
+tipe_stok | string | protected
+jumlah | int | protected
+harga_beli | int | protected
+nominal_diskon | int | protected
+subtotal | int | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+store($request) | public | Parameter: request // Return type: redirect // Fungsi: menyimpan detail transaksi
+destroy($id) | public | Parameter: $id // Return type: redirect // Fungsi: menghapus detail transaksi
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Pelanggan
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_pelanggan | int | private
+nama_pelanggan | string | protected
+no_hp | string | protected
+alamat | string | protected
+tipe | string | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index() | public | Parameter: - | Return: view | Fungsi: Menampilkan daftar pelanggan
+create() | public | Parameter: - | Return: view | Fungsi: Menampilkan form tambah pelanggan
+store(Request $request) | public | Parameter: Request | Return: redirect | Fungsi: Menyimpan data pelanggan baru
+edit($id) | public | Parameter: $id | Return: view | Fungsi: Menampilkan form edit pelanggan
+update(Request $req, $id) | public | Parameter: Request, $id | Return: redirect | Fungsi: Memperbarui data pelanggan
+destroy($id) | public | Parameter: $id | Return: redirect | Fungsi: Menghapus data pelanggan
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Suplier
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_suplier | int | private
+nama_supplier | string | protected
+alamat | string | protected
+no_hp | string | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+supplier() | public | Parameter: - | Return: view | Fungsi: Menampilkan daftar supplier
+supplierStore(Request $request) | public | Parameter: Request | Return: redirect | Fungsi: Menyimpan data supplier baru
+supplierUpdate(Request $req, $id) | public | Parameter: Request, $id | Return: redirect | Fungsi: Memperbarui data supplier
+supplierDestroy($id) | public | Parameter: $id | Return: redirect | Fungsi: Menghapus data supplier
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Diskon
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_diskon | int | private
+nama_diskon | string | protected
+tipe_diskon | string | protected
+minimal_beli | int | protected
+minimal_beli_grosir | int | protected
+mulai_tgl | date | protected
+selesai_tgl | date | protected
+is_aktif | boolean | protected
+fokus_bentuk | string | protected
+id_pelanggan | int (FK) | 
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index() | public | Parameter: - | Return: view | Fungsi: Menampilkan daftar diskon
+create() | public | Parameter: - | Return: view | Fungsi: Menampilkan form tambah diskon
+store(Request $request) | public | Parameter: Request | Return: redirect | Fungsi: Menyimpan diskon baru
+edit($id) | public | Parameter: $id | Return: view | Fungsi: Menampilkan form edit diskon
+update(Request $req, $id) | public | Parameter: Request, $id | Return: redirect | Fungsi: Memperbarui data diskon
+destroy($id) | public | Parameter: $id | Return: redirect | Fungsi: Menghapus diskon
+isAktifHariIni() | public | Parameter: - | Return: bool | Fungsi: Mengecek apakah diskon masih aktif hari ini
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Produk
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_Produk | int | private
+nama_produk | string | protected
+id_kategori | int (FK) | protected
+harga_satuan | int | protected
+harga_grosir | int | protected
+minimal_grosir | int | protected
+stok_gudang | int | protected
+stok_toko | int | protected
+isi_per_dus | int | protected
+satuan | string | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index(Request $request) | public | Parameter: Request | Return: view | Fungsi: Menampilkan daftar produk
+transferStok(Request $req, $id) | public | Parameter: Request, $id | Return: redirect | Fungsi: Transfer stok dari gudang ke toko
+destroy($id) | public | Parameter: $id | Return: redirect | Fungsi: Menghapus produk
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: DiskonProduk
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_diskon | int (FK) | protected
+id_produk | int (FK) | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+store(Request $request) | public | Parameter: Request | Return: redirect | Fungsi: Menyimpan relasi diskon-produk
+destroy($id) | public | Parameter: $id | Return: redirect | Fungsi: Menghapus relasi diskon-produk
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: DetailPembelian
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_detail_pembelian | int | private
+id_pembelian | int(FK) | protected
+id_produk | int (FK) | protected
+tipe | string | protected
+harga | int | protected
+harga_beli | int | protected
+subtotal | int | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+store($request) | public | Parameter: request // Return type: redirect // Fungsi: menyimpan detail pembelian
+destroy($id) | public | Parameter: $id // Return type: redirect // Fungsi: menghapus detail pembelian
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: LaporanPembelian
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+id_pembelian | string (FK) | protected
+tanggal | date | protected
+total | int | protected
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index() | public | Parameter: - | Return: view | Fungsi: Menampilkan daftar laporan pembelian
+show($id) | public | Parameter: $id | Return: view | Fungsi: Menampilkan detail laporan pembelian
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Laporan
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+- | - | -
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index(Request $request) | public | Parameter: Request | Return: view | Fungsi: Menampilkan halaman laporan utama
+show($id) | public | Parameter: $id | Return: view | Fungsi: Menampilkan detail laporan
+=== TABLE END ===
+Daftar Atribut dan Method Class
+Nama class: Dashboard
+Daftar atribut:
+=== TABLE START ===
+Nama Atribut | Tipe Data | Visibilitas // (Public/Protected/Private)
+- | - | -
+=== TABLE END ===
+Daftar method:
+=== TABLE START ===
+Nama Method | Visibilitas // (Public/Protected/Private) | Keterangan
+index($request) | public | Parameter: request // Return type: view // Fungsi: menampilkan halaman dashboard dengan ringkasan data
+=== TABLE END ===
+Struktur Class dan Class Diagram
+ [IMAGE/DRAWING (1)]
+Interaksi Objek Perangkat Lunak dan Sequence Diagram
+Produk (Moh Syaifudin) (SD01)
+ [IMAGE/DRAWING (1)]
+Kategori (Nur Ifani Chairun Nisa) (SD02)
+ [IMAGE/DRAWING (1)]
+Supplier (Dany Darmawan) (SD03)
+ [IMAGE/DRAWING (1)]
+Pelanggan (Inka Nazwa Fitri) (SD04)
+ [IMAGE/DRAWING (1)]
+Diskon (I Kadek Dika Darmadi) (SD05)
+ [IMAGE/DRAWING (1)]
+LaporanPenjualan (Dany Darmawan) (SD06)
+ [IMAGE/DRAWING (1)]
+Transaksi (Moh Syaifudin)(SD07)
+ [IMAGE/DRAWING (1)]
+LandingPgae (Nur Ifani Chairun Nisa) (SD08)
+ [IMAGE/DRAWING (1)]
+LandingSlide (Inka Nazwa Fitri) (SD09)
+ [IMAGE/DRAWING (1)]
+Rancangan User Interface
+Bubuhkan rancangan tampilan antarmuka (user interface) setiap halaman yang akan dikembangkan pada perangkat lunak.
+Pemilik
+Dashboard
+ [IMAGE/DRAWING (1)]
+Laporan
+ [IMAGE/DRAWING (1)]
+Pelanggan
+ [IMAGE/DRAWING (1)]
+Produk
+ [IMAGE/DRAWING (1)]
+Kategori
+ [IMAGE/DRAWING (1)]
+Diskon
+ [IMAGE/DRAWING (1)]
+Operasional (Pembelian)
+ [IMAGE/DRAWING (1)]
+Operasional (Supplier)
+ [IMAGE/DRAWING (1)]
+Operasional (Akun Kasir)
+ [IMAGE/DRAWING (1)]
+Pengaturan (Landing Page)
+ [IMAGE/DRAWING (1)]
+Pengaturan (Akun Pemilik)
+ [IMAGE/DRAWING (1)]
+Kasir
+Dashboard
+ [IMAGE/DRAWING (1)]
+Transaksi
+ [IMAGE/DRAWING (1)]
+Laporan
+ [IMAGE/DRAWING (1)]
+Struktur Basis Data
+Bubuhkan rancangan struktur logika basis data (database) yang digunakan pada perangkat lunak.
+ [IMAGE/DRAWING (1)]
+Traceability Use Case
+Lengkapi isian tabel berikut untuk menunjukkan hubungan antara suatu use case dengan skenario yang disiapkan serta pemodelan-pemodelannya pada sequence diagram, class diagram, dan activity diagram. Cukup tuliskan kode terkait untuk masing-masing isian.
+=== TABLE START ===
+Use Case | Skenario | Perancangan
+ |  | Sequence Diagram | Class Diagram | Activity Diagram
+UC.01 | SUC.01 | (tidak tersedia) | CD.01 | AD.01
+UC.02 | SUC.03 | SD.07 | CD.03, CD.04, CD.08 | AD.03
+UC.03 | SUC.02 | SD.01 | CD.08, CD.02 | AD.02
+UC.04 | SUC.04 | SD.06 | CD.12, CD.03 | AD.04
+UC.05 | (tidak tersedia) | (tidak tersedia) | CD.01 | (tidak tersedia)
+UC.06 | SUC.06 | SD.02 | CD.02 | AD.06
+UC.07 | SUC.05 | SD.01 | CD.08, CD.02 | AD.05
+UC.08 | SUC.09 | (tidak tersedia) | CD.01 | AD.09
+UC.09 | SUC.07 | SD.03 | CD.06 | AD.07
+UC.10 | SUC.011 | SD.01 | CD.08 | AD.011
+UC.11 | SUC.014 | SD.05 | CD.07 | AD.014
+UC.12 | SUC.010 | SD.01 | CD.08 | AD.010
+UC.13 | SUC.012 | SD.04 | CD.05 | AD.012
+UC.14 | SUC.013 | SD.06 | CD.12, CD.03 | AD.013
+UC.15 | SUC.08 | SD.07 | CD.03, CD.04, CD.08, CD.10, CD.11 | AD.08
+UC.16 | SUC.015 | SD.05 | CD.07, CD.08, CD.09 | AD.015
+UC.17 | SUC.016 | SD.06 | CD.12, CD.03, CD.11 | AD.016
+=== TABLE END ===

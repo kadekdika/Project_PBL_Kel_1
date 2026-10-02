@@ -35,6 +35,7 @@ Route::middleware(['auth', 'role:pemilik,kasir,pemilik2'])->group(function () {
 // menjalankan POS. Controller transaksi sudah membatasi hanya transaksi milik
 // user yang login (id_user), jadi kasir tidak bisa lihat/ubah transaksi kasir lain.
 Route::middleware(['auth', 'role:kasir,pemilik,pemilik2'])->group(function () {
+    Route::get('/transaksi/stok-terkini', [TransaksiController::class, 'stokTerkini'])->name('transaksi.stokTerkini');
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
     Route::get('/transaksi/{id}/print', [TransaksiController::class, 'printStruk'])->name('transaksi.print');
 });
@@ -76,26 +77,28 @@ Route::middleware(['auth', 'role:pemilik,pemilik2'])->group(function () {
 
     Route::post('/produk/{id}/transfer-stok', [ProdukController::class, 'transferStok'])->name('produk.transferStok');
 
-    // Riwayat aksi / audit trail (transaksi + login)
+    // Riwayat — audit immutabel, tidak bisa dihapus (destroy dimatikan)
     Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
-    Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('riwayat.destroy');
+    // ponytail: destroy disabled
+    // Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('riwayat.destroy');
 
-    // Akuntansi (COA, Jurnal, Buku Besar, Beban, Laporan Keuangan)
-    Route::prefix('akuntansi')->name('akuntansi.')->group(function () {
-        Route::get('/coa', [AkuntansiController::class, 'coa'])->name('coa');
-        Route::post('/coa', [AkuntansiController::class, 'coaStore'])->name('coa.store');
-        Route::delete('/coa/{id}', [AkuntansiController::class, 'coaDestroy'])->name('coa.destroy');
-        Route::get('/buku-besar', [AkuntansiController::class, 'bukuBesar'])->name('buku-besar');
-        Route::get('/jurnal', [AkuntansiController::class, 'jurnal'])->name('jurnal');
-        Route::post('/jurnal', [AkuntansiController::class, 'jurnalStore'])->name('jurnal.store');
-        Route::delete('/jurnal/{id}', [AkuntansiController::class, 'jurnalDestroy'])->name('jurnal.destroy');
-        Route::get('/beban', [AkuntansiController::class, 'beban'])->name('beban');
-        Route::post('/beban', [AkuntansiController::class, 'bebanStore'])->name('beban.store');
-        Route::delete('/beban/{id}', [AkuntansiController::class, 'bebanDestroy'])->name('beban.destroy');
-        Route::get('/laba-rugi', [LaporanKeuanganController::class, 'labaRugi'])->name('laba-rugi');
-        Route::get('/neraca', [LaporanKeuanganController::class, 'neraca'])->name('neraca');
-        Route::get('/arus-kas', [LaporanKeuanganController::class, 'arusKas'])->name('arus-kas');
-    });
+    // ponytail: akuntansi disabled — UI disembunyi, code tetap ada. Restore: uncomment blok ini + sidebar di app.blade.php + JurnalService calls di TransaksiController.
+    // // Akuntansi (COA, Jurnal, Buku Besar, Beban, Laporan Keuangan)
+    // Route::prefix('akuntansi')->name('akuntansi.')->group(function () {
+    //     Route::get('/coa', [AkuntansiController::class, 'coa'])->name('coa');
+    //     Route::post('/coa', [AkuntansiController::class, 'coaStore'])->name('coa.store');
+    //     Route::delete('/coa/{id}', [AkuntansiController::class, 'coaDestroy'])->name('coa.destroy');
+    //     Route::get('/buku-besar', [AkuntansiController::class, 'bukuBesar'])->name('buku-besar');
+    //     Route::get('/jurnal', [AkuntansiController::class, 'jurnal'])->name('jurnal');
+    //     Route::post('/jurnal', [AkuntansiController::class, 'jurnalStore'])->name('jurnal.store');
+    //     Route::delete('/jurnal/{id}', [AkuntansiController::class, 'jurnalDestroy'])->name('jurnal.destroy');
+    //     Route::get('/beban', [AkuntansiController::class, 'beban'])->name('beban');
+    //     Route::post('/beban', [AkuntansiController::class, 'bebanStore'])->name('beban.store');
+    //     Route::delete('/beban/{id}', [AkuntansiController::class, 'bebanDestroy'])->name('beban.destroy');
+    //     Route::get('/laba-rugi', [LaporanKeuanganController::class, 'labaRugi'])->name('laba-rugi');
+    //     Route::get('/neraca', [LaporanKeuanganController::class, 'neraca'])->name('neraca');
+    //     Route::get('/arus-kas', [LaporanKeuanganController::class, 'arusKas'])->name('arus-kas');
+    // });
 
     // Pengaturan Akun & User
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {

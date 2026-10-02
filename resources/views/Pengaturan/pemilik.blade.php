@@ -33,16 +33,18 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="block text-sm font-bold text-gray-700 ml-1">Email</label>
-                    <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                           class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#2d6a4f] outline-none transition-all">
+                    <label class="block text-sm font-bold text-gray-700 ml-1">Email (hanya @gmail.com)</label>
+                    <input type="email" name="email" value="{{ old('email', $user->email) }}" required pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$" title="Harus @gmail.com"
+                           class="w-full px-5 py-3 bg-gray-50 border @error('email') border-red-300 @else border-gray-200 @enderror rounded-2xl focus:ring-2 focus:ring-[#2d6a4f] outline-none transition-all">
+                    @error('email')<p class="text-xs text-red-600 ml-1">{{ $message }}</p>@enderror
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 ml-1">Password Baru</label>
-                    <input type="password" name="password" class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#2d6a4f] outline-none" placeholder="••••••••">
+                    <input type="password" name="password" class="w-full px-5 py-3 bg-gray-50 border @error('password') border-red-300 @else border-gray-200 @enderror rounded-2xl focus:ring-2 focus:ring-[#2d6a4f] outline-none" placeholder="••••••••">
+                    @error('password')<p class="text-xs text-red-600 ml-1">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 ml-1">Konfirmasi Password</label>

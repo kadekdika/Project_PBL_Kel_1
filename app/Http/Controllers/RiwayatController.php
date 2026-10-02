@@ -40,13 +40,6 @@ class RiwayatController extends Controller
         return view('riwayat.index', compact('riwayat', 'dari', 'sampai', 'kejadian', 'cari'));
     }
 
-    public function destroy($id)
-    {
-        if (Auth::user()->role !== 'pemilik') {
-            return back()->with('error', 'Hanya pemilik yang bisa membersihkan riwayat.');
-        }
-
-        RiwayatAksi::findOrFail($id)->delete();
-        return back()->with('success', 'Riwayat berhasil dihapus.');
-    }
+    // ponytail: destroy disabled — riwayat audit immutabel, jangan expose DELETE lagi
+    // public function destroy($id) { ... }
 }

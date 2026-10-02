@@ -42,7 +42,6 @@ class TransaksiController extends Controller
         $kategori = Kategori::all();
         $pelanggan = Pelanggan::all();
 
-        // Ambil diskon aktif spesifik pelanggan (id_pelanggan != null)
         $diskonPelanggan = Diskon::where('is_aktif', true)
             ->where('mulai_tgl', '<=', $today)
             ->where('selesai_tgl', '>=', $today)
@@ -54,17 +53,28 @@ class TransaksiController extends Controller
         return view('transaksi.create', compact('produk', 'kategori', 'pelanggan', 'diskonPelanggan'));
     }
 
+    /** ponytail: polling ringan stok realtime — hapus jika pakai websocket */
+    public function stokTerkini()
+    {
+        $map = [];
+        foreach (Produk::select('id_produk','stok_toko','stok_gudang','harga_satuan','harga_grosir','nama_produk')->get() as $p) {
+            $map[$p->id_produk] = ['stok_toko'=>$p->stok_toko,'stok_gudang'=>$p->stok_gudang,'harga_satuan'=>$p->harga_satuan,'harga_grosir'=>$p->harga_grosir,'nama'=>$p->nama_produk,'deleted'=>false];
+        }
+        foreach (Produk::onlyTrashed()->select('id_produk','nama_produk')->get() as $p) {
+            $map[$p->id_produk] = ['deleted'=>true,'nama'=>$p->nama_produk];
+        }
+        return response()->json($map);
+    }
+
     public function store(Request $request)
     {
-        // Decode keranjang jika dikirim sebagai JSON string
         if (is_string($request->keranjang)) {
             $request->merge(['keranjang' => json_decode($request->keranjang, true)]);
         }
 
-        // Validasi dasar
         $request->validate([
             'keranjang'             => 'required|array|min:1',
-            'keranjang.*.id_produk' => 'required|exists:produk,id_produk',
+            'keranjang.*.id_produk' => 'required|integer',
             'keranjang.*.jumlah'    => 'required|integer|min:1',
             'keranjang.*.tipe'      => 'required|in:eceran,grosir',
             'metode_pembayaran'     => 'required|in:tunai,transfer,kartu',
@@ -74,9 +84,14 @@ class TransaksiController extends Controller
         $subtotalKeseluruhan = 0;
         $totalDiskon = 0;
         $items = [];
+        $errorsStok = [];
 
         foreach ($request->keranjang as $item) {
-            $produk = Produk::findOrFail($item['id_produk']);
+            $produk = Produk::withTrashed()->find($item['id_produk']);
+            if (!$produk || $produk->trashed()) {
+                $nama = $produk->nama_produk ?? "ID {$item['id_produk']}";
+                return back()->withErrors(['keranjang' => "Produk \"{$nama}\" sudah dihapus pemilik. Refresh halaman transaksi."])->withInput();
+            }
             $jumlah = (int) $item['jumlah'];
             $tipe   = $item['tipe'];
 
@@ -84,17 +99,12 @@ class TransaksiController extends Controller
                 ? ($produk->harga_grosir ?? $produk->harga_satuan)
                 : $produk->harga_satuan;
 
-            // Cek stok
             if ($tipe === 'grosir') {
-                if ($jumlah > $produk->stok_gudang)
-                    return back()->withErrors(['stok' => "Stok gudang {$produk->nama_produk} tidak mencukupi."])->withInput();
+                if ($jumlah > $produk->stok_gudang) $errorsStok[] = "Stok gudang {$produk->nama_produk} sisa {$produk->stok_gudang}, minta {$jumlah}.";
             } else {
-                if ($jumlah > $produk->stok_toko)
-                    return back()->withErrors(['stok' => "Stok toko {$produk->nama_produk} tidak mencukupi."])->withInput();
+                if ($jumlah > $produk->stok_toko) $errorsStok[] = "Stok toko {$produk->nama_produk} sisa {$produk->stok_toko}, minta {$jumlah}.";
             }
 
-            // Cek diskon aktif
-            // FIX: nominal_diskon dihitung per-unit, lalu dikali jumlah untuk totalDiskon
             $nominalDiskonPerUnit = 0;
             $today = now()->toDateString();
             $diskonAktif = $produk->diskon()
@@ -109,7 +119,6 @@ class TransaksiController extends Controller
                     $q->whereNull('id_pelanggan')
                       ->orWhere('id_pelanggan', $request->id_pelanggan ?: null);
                 })
-                // FIX: pilih diskon terbesar yang berlaku (klien & server pakai urutan sama)
                 ->orderByDesc('besar_diskon')
                 ->orderBy('id_diskon')
                 ->first();
@@ -119,12 +128,10 @@ class TransaksiController extends Controller
                     ? ($diskonAktif->minimal_beli_grosir ?? 0)
                     : ($diskonAktif->minimal_beli ?? 0);
                 if ($jumlah >= $minimalBeli) {
-                    // FIX: hitung diskon per unit saja
                     $nominalDiskonPerUnit = round($harga * ($diskonAktif->besar_diskon / 100));
                 }
             }
 
-            // FIX: total diskon untuk item ini = diskon per unit * jumlah
             $nominalDiskonTotal   = $nominalDiskonPerUnit * $jumlah;
             $subtotalItem         = ($harga * $jumlah) - $nominalDiskonTotal;
             $subtotalKeseluruhan += ($harga * $jumlah);
@@ -132,15 +139,15 @@ class TransaksiController extends Controller
 
             $items[] = [
                 'id_produk'      => $produk->id_produk,
-                'produk_obj'     => $produk,
                 'jumlah'         => $jumlah,
                 'tipe'           => $tipe,
                 'harga'          => $harga,
-                // FIX: simpan per-unit supaya show.blade bisa tampil benar (nominal * jumlah)
                 'nominal_diskon' => $nominalDiskonPerUnit,
                 'subtotal'       => $subtotalItem,
             ];
         }
+
+        if ($errorsStok) return back()->withErrors(['stok' => implode(' ', $errorsStok)])->withInput();
 
         $total     = $subtotalKeseluruhan - $totalDiskon;
         $bayar     = (int) $request->bayar;
@@ -153,7 +160,7 @@ class TransaksiController extends Controller
         try {
             $transaksi = Transaksi::create([
                 'jenis'             => 'penjualan',
-                'tanggal'           => now()->toDateString(), // kolom DATE; jam asli dari created_at
+                'tanggal'           => now()->toDateString(),
                 'id_user'           => Auth::id(),
                 'id_pelanggan'      => $request->id_pelanggan ?: null,
                 'subtotal'          => $subtotalKeseluruhan,
@@ -166,6 +173,10 @@ class TransaksiController extends Controller
             ]);
 
             foreach ($items as $item) {
+                $p = Produk::where('id_produk', $item['id_produk'])->lockForUpdate()->first();
+                if (!$p) throw new \Exception("Produk ID {$item['id_produk']} sudah dihapus saat checkout.");
+                $avail = $item['tipe']==='grosir' ? $p->stok_gudang : $p->stok_toko;
+                if ($item['jumlah'] > $avail) throw new \Exception("Stok {$p->nama_produk} sisa {$avail}, minta {$item['jumlah']}.");
                 DetailTransaksi::create([
                     'id_transaksi'   => $transaksi->id_transaksi,
                     'id_produk'      => $item['id_produk'],
@@ -173,21 +184,17 @@ class TransaksiController extends Controller
                     'tipe_stok'      => $item['tipe'] === 'grosir' ? 'gudang' : 'toko',
                     'jumlah'         => $item['jumlah'],
                     'harga'          => $item['harga'],
-                    'harga_beli'     => $item['produk_obj']->harga_beli ?? 0,
-                    'nominal_diskon' => $item['nominal_diskon'], // per unit
+                    'harga_beli'     => $p->harga_beli ?? 0,
+                    'nominal_diskon' => $item['nominal_diskon'],
                     'subtotal'       => $item['subtotal'],
                 ]);
-
-                $p = $item['produk_obj'];
-                if ($item['tipe'] === 'grosir') {
-                    $p->stok_gudang -= $item['jumlah'];
-                } else {
-                    $p->stok_toko -= $item['jumlah'];
-                }
+                if ($item['tipe'] === 'grosir') $p->stok_gudang -= $item['jumlah'];
+                else $p->stok_toko -= $item['jumlah'];
                 $p->save();
             }
 
-            JurnalService::buatJurnalPenjualan($transaksi);
+            // ponytail: jurnal disabled — restore: uncomment baris di bawah
+            // JurnalService::buatJurnalPenjualan($transaksi);
             RiwayatService::catatTransaksi('penjualan_buat', $transaksi);
 
             DB::commit();
@@ -217,7 +224,6 @@ class TransaksiController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Kasir hanya boleh menghapus transaksi penjualan miliknya sendiri
             $transaksi = Transaksi::with('detail')
                 ->penjualan()
                 ->where('id_user', Auth::id())
@@ -233,7 +239,8 @@ class TransaksiController extends Controller
                     $produk->save();
                 }
             }
-            JurnalService::voidJurnal('penjualan', $transaksi->id_transaksi);
+            // ponytail: jurnal disabled — restore: uncomment baris di bawah
+            // JurnalService::voidJurnal('penjualan', $transaksi->id_transaksi);
             RiwayatService::catatTransaksi('penjualan_hapus', $transaksi);
             $transaksi->delete();
             DB::commit();
@@ -265,7 +272,6 @@ class TransaksiController extends Controller
 
     public function storePembelian(Request $request)
 {
-    // Validasi
     $validator = \Validator::make($request->all(), [
         'tanggal'      => 'required|date',
         'id_suplier'   => 'nullable|exists:suplier,id_suplier',
@@ -277,18 +283,15 @@ class TransaksiController extends Controller
     ]);
 
     if ($validator->fails()) {
-        // Jika AJAX request
         if ($request->ajax() || $request->expectsJson()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
         return back()->withErrors($validator)->withInput();
     }
 
-    // Hitung total
     $total = 0;
     foreach ($request->id_produk as $i => $id_produk) {
         $total += $request->jumlah[$i] * $request->harga_beli[$i];
@@ -296,7 +299,6 @@ class TransaksiController extends Controller
 
     DB::beginTransaction();
     try {
-        // Simpan transaksi
         $transaksi = Transaksi::create([
             'jenis'       => 'pembelian',
             'tanggal'     => $request->tanggal,
@@ -306,7 +308,6 @@ class TransaksiController extends Controller
             'keterangan'  => $request->keterangan,
         ]);
 
-        // Simpan detail
         foreach ($request->id_produk as $i => $id_produk) {
             $jumlah     = $request->jumlah[$i];
             $harga_beli = $request->harga_beli[$i];
@@ -322,14 +323,12 @@ class TransaksiController extends Controller
                 'subtotal'     => $subtotal,
             ]);
 
-            // Update stok produk
             $produk = Produk::findOrFail($id_produk);
             $produk->stok_gudang += $jumlah;
             $produk->harga_beli = $harga_beli;
             $produk->save();
         }
 
-        // Simpan ke laporan pembelian
         LaporanPembelian::create([
             'id_pembelian' => $transaksi->id_transaksi,
             'tanggal'      => $transaksi->tanggal,
@@ -337,12 +336,12 @@ class TransaksiController extends Controller
             'id_user'      => Auth::id(),
         ]);
 
-        JurnalService::buatJurnalPembelian($transaksi);
+        // ponytail: jurnal disabled — restore: uncomment baris di bawah
+        // JurnalService::buatJurnalPembelian($transaksi);
         RiwayatService::catatTransaksi('pembelian_buat', $transaksi);
 
         DB::commit();
 
-        // Jika AJAX request
         if ($request->ajax() || $request->expectsJson()) {
             return response()->json([
                 'success' => true,
@@ -352,19 +351,16 @@ class TransaksiController extends Controller
         }
 
         return redirect()->route('pembelian.index')->with('success', 'Pembelian berhasil disimpan.');
-        
+
     } catch (\Exception $e) {
         DB::rollback();
-        
         \Log::error('Error storePembelian: ' . $e->getMessage());
-        
         if ($request->ajax() || $request->expectsJson()) {
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
             ], 500);
         }
-        
         return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
 }
@@ -400,7 +396,8 @@ class TransaksiController extends Controller
                     $produk->save();
                 }
             }
-            JurnalService::voidJurnal('pembelian', $pembelian->id_transaksi);
+            // ponytail: jurnal disabled — restore: uncomment baris di bawah
+            // JurnalService::voidJurnal('pembelian', $pembelian->id_transaksi);
             RiwayatService::catatTransaksi('pembelian_hapus', $pembelian);
             $pembelian->delete();
             DB::commit();

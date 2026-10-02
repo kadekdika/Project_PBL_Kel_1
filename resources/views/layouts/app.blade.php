@@ -29,8 +29,7 @@
      x-data="{
         sidebarOpen: false,
         openOperasional: {{ request()->routeIs('transaksi.*') || request()->routeIs('pembelian.*') || request()->routeIs('laporan.*') ? 'true' : 'false' }},
-        openPengaturan: {{ request()->routeIs('landing.*') || request()->is('pengaturan/pemilik') ? 'true' : 'false' }},
-        openAkuntansi: {{ request()->is('akuntansi/*') ? 'true' : 'false' }}
+        openPengaturan: {{ request()->routeIs('landing.*') || request()->is('pengaturan/pemilik') ? 'true' : 'false' }}
      }">
 
     {{-- Backdrop (mobile) --}}
@@ -161,7 +160,8 @@
                         </div>
                     </div>
 
-                    {{-- AKUNTANSI (accordion) --}}
+                    {{-- ponytail: AKUNTANSI disabled — restore: uncomment blok ini + routes akuntansi di web.php + JurnalService calls di TransaksiController --}}
+                    {{--
                     <div class="pt-2">
                         <button @click="openAkuntansi = !openAkuntansi"
                                 class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg font-bold text-sm transition
@@ -237,6 +237,7 @@
                             </a>
                         </div>
                     </div>
+                    --}}
 
                     {{-- KEAMANAN --}}
                     <div class="pt-4 pb-1 px-4">

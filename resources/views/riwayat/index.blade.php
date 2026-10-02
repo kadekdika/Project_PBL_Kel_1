@@ -106,9 +106,7 @@
                         <th class="px-4 py-3 text-right">Waktu Aksi</th>
                         <th class="px-4 py-3">Oleh</th>
                         <th class="px-4 py-3">IP</th>
-                        @if(auth()->user()->role === 'pemilik')
-                            <th class="px-4 py-3 rounded-r-lg text-right">Aksi</th>
-                        @endif
+                        <th class="px-4 py-3 rounded-r-lg"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -148,20 +146,12 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-xs text-gray-400 font-mono">{{ $r->ip_address ?? '—' }}</td>
-                            @if(auth()->user()->role === 'pemilik')
-                                <td class="px-4 py-3 text-right">
-                                    <form method="POST" action="{{ route('riwayat.destroy', $r->id_riwayat) }}" onsubmit="return confirm('Hapus riwayat ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>
-                                    </form>
-                                </td>
-                            @endif
+                            <td class="px-4 py-3"></td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ auth()->user()->role === 'pemilik' ? 7 : 6 }}" class="px-6 py-8 text-center text-gray-400">
-                                Belum ada aktivitas. Filter & coba lagi nanti.
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-400">
+                                Belum ada aktivitas.
                             </td>
                         </tr>
                     @endforelse

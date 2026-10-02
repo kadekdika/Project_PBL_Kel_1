@@ -24,6 +24,12 @@
         </div>
     @endif
 
+    {{-- ponytail: realtime notice — polling 10s, hilangkan jika pakai websocket --}}
+    <div id="syncNotice" class="hidden mb-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-2 rounded-xl text-xs flex items-center justify-between">
+        <span id="syncNoticeText">Stok diperbarui</span>
+        <button onclick="this.parentElement.classList.add('hidden')" class="text-amber-600 font-bold">✕</button>
+    </div>
+
     <div class="flex gap-4 h-full">
 
         {{-- KIRI: Daftar Produk --}}
@@ -293,9 +299,62 @@
     </div>
 
     <script>
+    const stokTerkiniUrl = "{{ route('transaksi.stokTerkini') }}";
     const logoUrl = "{{ asset('images/logotoko.png') }}";
     let keranjang = [];
     let pelangganTerpilih = null;
+
+    // ponytail: polling ringan — ganti websocket jika perlu realtime push
+    let _pollTimer = null;
+    async function syncStok() {
+        try {
+            const res = await fetch(stokTerkiniUrl, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) return;
+            const map = await res.json();
+            let changed = 0, removed = 0;
+            document.querySelectorAll('.produk-row').forEach(row => {
+                const id = row.dataset.id;
+                const data = map[id];
+                if (!data || data.deleted) {
+                    row.style.opacity = '0.35';
+                    row.querySelector('button')?.setAttribute('disabled','disabled');
+                    row.title = 'Produk sudah dihapus pemilik';
+                    // hapus dari keranjang jika ada
+                    const idx = keranjang.findIndex(k => k.id_produk === id);
+                    if (idx !== -1) { keranjang.splice(idx, 1); removed++; }
+                    changed++;
+                } else {
+                    row.dataset.stokToko = data.stok_toko;
+                    row.dataset.stokGudang = data.stok_gudang;
+                    row.dataset.hargaSatuan = data.harga_satuan;
+                    row.dataset.hargaGrosir = data.harga_grosir;
+                    // update badge text
+                    const tBadge = row.children[3]?.querySelector('span');
+                    const gBadge = row.children[4]?.querySelector('span');
+                    if (tBadge) { tBadge.textContent = data.stok_toko + ' pcs'; tBadge.className = 'px-2 py-0.5 rounded-lg text-xs font-semibold ' + (data.stok_toko <= 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'); }
+                    if (gBadge) { gBadge.textContent = data.stok_gudang + ' pcs'; gBadge.className = 'px-2 py-0.5 rounded-lg text-xs font-semibold ' + (data.stok_gudang <= 10 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-700'); }
+                    // sync keranjang stok snapshot
+                    keranjang.forEach(k => { if (k.id_produk === id) { k.stokToko = data.stok_toko; k.stokGudang = data.stok_gudang; k.hargaSatuan = data.harga_satuan; k.hargaGrosir = data.harga_grosir; }});
+                }
+            });
+            // produk baru yang belum ada di DOM? reload sekali biar kasir tau
+            const existingIds = new Set([...document.querySelectorAll('.produk-row')].map(r => r.dataset.id));
+            const baru = Object.keys(map).filter(id => !map[id].deleted && !existingIds.has(id));
+            if (baru.length > 0) { showSyncNotice(baru.length + ' produk baru tersedia — refresh untuk melihat'); }
+            if (removed > 0) { showSyncNotice(removed + ' produk di keranjang sudah dihapus pemilik, dikeluarkan otomatis'); renderKeranjang(); }
+            else if (changed > 0) { renderKeranjang(); }
+        } catch(e) {}
+    }
+    function showSyncNotice(msg) {
+        const el = document.getElementById('syncNotice');
+        const tx = document.getElementById('syncNoticeText');
+        if (!el || !tx) return;
+        tx.textContent = msg;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 6000);
+    }
+    function startPolling() { if (_pollTimer) clearInterval(_pollTimer); syncStok(); _pollTimer = setInterval(syncStok, 10000); document.addEventListener('visibilitychange', () => { if (!document.hidden) syncStok(); }); }
+    document.addEventListener('DOMContentLoaded', startPolling);
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('searchProduk').addEventListener('input', filterProduk);
@@ -479,17 +538,20 @@
         renderKeranjang();
     }
 
-    function checkout() {
+    async function checkout() {
         if (keranjang.length === 0) return alert('Keranjang kosong!');
-
+        // re-sync sekali sebelum buka modal — cegah stale checkout
+        await syncStok();
         let stokAman = true;
+        let hapusNama = null;
         keranjang.forEach(item => {
             const max = item.tipe === 'grosir' ? item.stokGudang : item.stokToko;
             if (item.jumlah > max) stokAman = false;
         });
-        if (!stokAman) return alert('Ada produk yang melebihi stok!');
+        // jika ada item yang barusan kehapus karena produk dihapus pemilik, keranjang sudah ter-update
+        if (keranjang.length === 0) return alert('Keranjang kosong — produk sudah dihapus pemilik. Silakan pilih ulang.');
+        if (!stokAman) { renderKeranjang(); return alert('Ada produk melebihi stok terbaru — cek tanda merah di keranjang.'); }
 
-        // Set keranjang ke hidden input saat buka modal
         document.getElementById('keranjangInput').value = JSON.stringify(keranjang);
         document.getElementById('modalCheckout').classList.remove('hidden');
     }

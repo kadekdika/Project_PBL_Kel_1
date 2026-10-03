@@ -1,0 +1,78 @@
+<title>Class Diagram — POS Sarana Agro Makmur</title>
+<style>
+:root{--bg:#f4f4f2;--paper:#fff;--fg:#111;--muted:#6b7280;--border:#d6d6d3;--faint:#eee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px system-ui;padding:16px}
+.wrap{max-width:1120px;margin:0 auto}
+h1{font-size:22px;margin:6px 0}
+.paper{background:var(--paper);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.bar{padding:10px 14px;border-bottom:1px solid var(--faint);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid #111;background:#111;color:#fff;padding:8px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.btn--g{background:#fff;color:#111;border-color:var(--border)}
+.diagram-wrap{padding:18px;overflow:auto;background:#fff}
+#diagram{min-width:720px;display:flex;justify-content:center}
+#pngPreview{display:none;padding:12px;border-top:1px solid var(--faint);background:#fff}
+#pngPreview.show{display:block}
+#pngPreview img{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:10px}
+pre{margin:0;padding:12px;overflow:auto;font:11.5px monospace;white-space:pre}
+</style>
+<div class="wrap">
+<h1>Class Diagram — POS Sarana Agro Makmur</h1>
+<p style="color:var(--muted);max-width:60ch">Monokrom profesional. One to Many / Many to Many. Download PNG 2× atau klik kanan Save image as.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+<button class="btn" id="btnPng">Download PNG</button>
+<button class="btn btn--g" id="btnSvg">Download SVG</button>
+<button class="btn btn--g" id="btnCopy">Copy Mermaid</button>
+<button class="btn btn--g" id="btnOpen">Buka PNG di tab baru</button>
+</div>
+<div class="paper">
+<div class="bar"><b style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Diagram — Class</b><span style="font-size:12px;color:var(--muted)">17 kelas • monokrom • A4-ready</span></div>
+<div class="diagram-wrap"><div id="diagram"></div></div>
+<div id="pngPreview"><img id="pngImg" alt="PNG preview"></div>
+</div>
+<pre id="code" style="margin-top:12px;background:#fff;border:1px solid var(--border);border-radius:12px"></pre>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<script>
+const code=`%%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'#111111','primaryBorderColor':'#222222','lineColor':'#222222'}}}%%
+classDiagram
+    class User { +id PK +name +email +role +password }
+    class Kategori { +id_kategori PK +nama_kategori +status }
+    class Produk { +id_produk PK +kode_produk +nama_produk +id_kategori FK +harga_satuan +harga_beli +stok_gudang +stok_toko +satuan }
+    class Pelanggan { +id_pelanggan PK +nama_pelanggan +no_hp +alamat +tipe }
+    class Suplier { +id_suplier PK +nama_suplier +no_hp +alamat }
+    class Akun { +id_akun PK +kode_akun +nama_akun +pos_saldo +pos_laporan }
+    class Diskon { +id_diskon PK +nama_diskon +besar_diskon +mulai_tgl +selesai_tgl +is_aktif +isAktifHariIni() bool }
+    class DiskonProduk { +id_produk FK +id_diskon FK }
+    class Transaksi { +id_transaksi PK +jenis +tanggal +id_user FK +subtotal +total +bayar }
+    class DetailTransaksi { +id_detail_transaksi PK +id_transaksi FK +id_produk FK +jumlah +harga +subtotal }
+    class Jurnal { +id_jurnal PK +no_jurnal +tanggal +keterangan +total }
+    class DetailJurnal { +id_detail_jurnal PK +id_jurnal FK +id_akun FK +debit +kredit }
+    class BebanOperasional { +id PK +nama +nominal +tanggal }
+    class TransferStok { +id PK +id_produk FK +jumlah +dari +ke }
+    class RiwayatAksi { +id PK +id_user FK +aksi +model_type }
+    Kategori -- Produk : One to Many
+    Produk -- Diskon : Many to Many via DiskonProduk
+    Diskon -- Pelanggan : Many to One (Opsional)
+    Transaksi -- DetailTransaksi : One to Many (Wajib)
+    DetailTransaksi -- Produk : Many to One
+    Transaksi -- User : Many to One
+    Transaksi -- Pelanggan : Many to One (Opsional)
+    Transaksi -- Suplier : Many to One (Opsional)
+    Transaksi -- Akun : Many to One (Opsional)
+    Jurnal -- DetailJurnal : One to Many
+    DetailJurnal -- Akun : Many to One
+    Jurnal -- User : Many to One
+    BebanOperasional -- Akun : Many to One
+    TransferStok -- Produk : Many to One
+    TransferStok -- User : Many to One
+    RiwayatAksi -- User : Many to One`;
+document.getElementById('code').textContent=code;
+mermaid.initialize({startOnLoad:false,theme:'base'});
+mermaid.render('d',code).then(r=>{document.getElementById('diagram').innerHTML=r.svg});
+function getSvg(){const el=document.querySelector('#diagram svg');if(!el)return null;const c=el.cloneNode(true);c.setAttribute('xmlns','http://www.w3.org/2000/svg');const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');bg.setAttribute('width','100%');bg.setAttribute('height','100%');bg.setAttribute('fill','#fff');c.insertBefore(bg,c.firstChild);return new XMLSerializer().serializeToString(c);}
+async function toPng(){const s=getSvg();if(!s)return null;const blob=new Blob([s],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);const img=new Image();await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});URL.revokeObjectURL(url);const vb=document.querySelector('#diagram svg').viewBox.baseVal;const w=vb&&vb.width?Math.ceil(vb.width):img.naturalWidth;const h=vb&&vb.height?Math.ceil(vb.height):img.naturalHeight;const c=document.createElement('canvas');c.width=w*2;c.height=h*2;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);return c;}
+document.getElementById('btnSvg').onclick=()=>{const s=getSvg();const b=new Blob([s],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='class-diagram-pos.png.svg';a.click();setTimeout(()=>URL.revokeObjectURL(u),800)};
+document.getElementById('btnPng').onclick=async()=>{const c=await toPng();const prev=document.getElementById('pngPreview');prev.classList.add('show');document.getElementById('pngImg').src=c.toDataURL('image/png');c.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='class-diagram-pos-sarana-agro-makmur.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),800)});prev.scrollIntoView({behavior:'smooth'})};
+document.getElementById('btnOpen').onclick=async()=>{const c=await toPng();const w=window.open('','_blank');w.document.write('<img src="'+c.toDataURL()+'" style="max-width:100%">')};
+document.getElementById('btnCopy').onclick=()=>navigator.clipboard.writeText(code);
+</script>

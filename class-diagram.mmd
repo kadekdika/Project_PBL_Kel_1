@@ -1,0 +1,33 @@
+%%{init:{'theme':'base','themeVariables':{'primaryColor':'#ffffff','primaryTextColor':'#111111','primaryBorderColor':'#222222','lineColor':'#222222'}}}%%
+classDiagram
+    class User { +id PK +name +email +role +password }
+    class Kategori { +id_kategori PK +nama_kategori +status }
+    class Produk { +id_produk PK +kode_produk +nama_produk +id_kategori FK +harga_satuan +harga_beli +stok_gudang +stok_toko +satuan }
+    class Pelanggan { +id_pelanggan PK +nama_pelanggan +no_hp +alamat +tipe }
+    class Suplier { +id_suplier PK +nama_suplier +no_hp +alamat }
+    class Akun { +id_akun PK +kode_akun +nama_akun +pos_saldo +pos_laporan }
+    class Diskon { +id_diskon PK +nama_diskon +besar_diskon +mulai_tgl +selesai_tgl +is_aktif +isAktifHariIni() bool }
+    class DiskonProduk { +id_produk FK +id_diskon FK }
+    class Transaksi { +id_transaksi PK +jenis +tanggal +id_user FK +subtotal +total +bayar }
+    class DetailTransaksi { +id_detail_transaksi PK +id_transaksi FK +id_produk FK +jumlah +harga +subtotal }
+    class Jurnal { +id_jurnal PK +no_jurnal +tanggal +keterangan +total }
+    class DetailJurnal { +id_detail_jurnal PK +id_jurnal FK +id_akun FK +debit +kredit }
+    class BebanOperasional { +id PK +nama +nominal +tanggal }
+    class TransferStok { +id PK +id_produk FK +jumlah +dari +ke }
+    class RiwayatAksi { +id PK +id_user FK +aksi +model_type }
+    Kategori -- Produk : One to Many
+    Produk -- Diskon : Many to Many via DiskonProduk
+    Diskon -- Pelanggan : Many to One (Opsional)
+    Transaksi -- DetailTransaksi : One to Many (Wajib)
+    DetailTransaksi -- Produk : Many to One
+    Transaksi -- User : Many to One
+    Transaksi -- Pelanggan : Many to One (Opsional)
+    Transaksi -- Suplier : Many to One (Opsional)
+    Transaksi -- Akun : Many to One (Opsional)
+    Jurnal -- DetailJurnal : One to Many
+    DetailJurnal -- Akun : Many to One
+    Jurnal -- User : Many to One
+    BebanOperasional -- Akun : Many to One
+    TransferStok -- Produk : Many to One
+    TransferStok -- User : Many to One
+    RiwayatAksi -- User : Many to One
